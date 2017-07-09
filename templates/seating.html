@@ -1,0 +1,47 @@
+<html>
+<heading>
+	<title>Seating</title>
+	<style>
+		.clearfix:after {
+			content: "";
+			display: block;
+			clear: both;
+		}
+		
+		.table {
+			float: left;
+			margin-left: 50px;
+			margin-bottom: 50px;
+		}
+		
+		.student {
+			border: 2px solid black;
+			float: left;
+			width: 100px;
+			text-align: center;
+			padding: 10px 0px;
+		}
+	</style>
+</heading>
+<body>
+	<section id="room" class="clearfix">
+		{% for i in range(0, students|length, 6) %}
+		{% if i == 24 %}
+		<div class="table clearfix" id="backtable">
+		{% else %}
+		<div class="table clearfix">
+		{% endif %}
+			{% for j in range(6) %}
+			<div class="student">{{ students[i + j].name }}</div>
+			{% endfor %}
+		</div>
+		{% endfor %}
+	</section>
+	
+	<form method="get" action="">
+		<input type="hidden" name="generate" value="true">
+		<input type="submit" value="Generate New Seating">
+	</form>
+	<a href="/students">Manage Students</a>
+</body>
+</html>

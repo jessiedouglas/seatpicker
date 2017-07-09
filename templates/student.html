@@ -1,0 +1,38 @@
+<html>
+<header>
+	<title>Students</title>
+</header>
+<body>
+	{% if not msg == None %}
+	<div>
+		{{msg}}
+	</div>	
+	{% endif %}
+	
+	<h1>Students</h1>
+	{% if students|length > 0 %}
+		<ul>
+		{% for student in students %}
+			<form method="post" action="/student">
+				<input type="hidden" name="_method" value="delete">
+				<li>
+					<p>{{ student.name }}</p>
+					<input type="hidden" name="key" value="{{ student.key.urlsafe() }}">
+					<input type="submit" value="delete">
+				</li>
+			</form>
+		{% endfor %}
+		</ul>
+	{% else %}
+	<p>No students found!</p>
+	{% endif %}
+	
+	<h3>Add a Student</h3>
+	<form method="post" action="/student">
+		<label>Name
+			<input name="name" type="text">
+		</label>
+		<input type="submit">
+	</form>
+</body>
+</html>
