@@ -8,13 +8,17 @@ from models import student
 env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
 
 class StudentHandler(webapp2.RequestHandler):
-    def get(self):
+    def render(self, students, msg=None):
         template = env.get_template('student.html')
         vars_dict = {
-            "msg": None,
-            "students": student.Student.query().fetch(),
+            "msg": msg,
+            "students": students,
         }
         self.response.out.write(template.render(vars_dict))
+    
+    def get(self):
+        students = student.Student.query().fetch()
+        self.render(students)
     
     def post(self):
         if self.request.get('_method') == 'delete':
@@ -24,29 +28,19 @@ class StudentHandler(webapp2.RequestHandler):
         name = self.request.get('name')
         s = student.Student(name=name)
         all_students = student.Student.query().fetch()
-        template = env.get_template('student.html')
         
         try:
             key = s.put()
         except Exception as e:
             msg = "oops... %s" % e
             logging.info(msg)
-            vars_dict = {
-                "msg": msg,
-                "students": all_students,
-            }
-            self.response.out.write(template.render(vars_dict))
+            self.render(all_students, msg=msg)
             return
 
         msg = "Successfully saved student %s!" % name
         logging.info(msg)
         all_students.append(key.get())
-        vars_dict = {
-            "msg": msg,
-            "students": all_students,
-        }
-        logging.info(vars_dict["students"])
-        self.response.out.write(template.render(vars_dict))
+        self.render(all_students, msg=msg)
     
     def delete(self):
         urlsafe = self.request.get('key')
@@ -56,9 +50,5 @@ class StudentHandler(webapp2.RequestHandler):
         msg = "Deleted student %s." % name
         logging.info(msg)
         
-        template = env.get_template('student.html')
-        vars_dict = {
-            "msg": msg,
-            "students": student.Student.query().fetch(),
-        }
-        self.response.out.write(template.render(vars_dict))
+        students = student.Student.query().fetch()
+        self.render(students, msg=msg)

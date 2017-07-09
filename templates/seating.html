@@ -24,6 +24,12 @@
 	</style>
 </heading>
 <body>
+	{% if not msg == None %}
+	<div>
+		{{msg}}
+	</div>	
+	{% endif %}
+	
 	<section id="room" class="clearfix">
 		{% for i in range(0, students|length, 6) %}
 		{% if i == 24 %}
@@ -40,7 +46,13 @@
 	
 	<form method="get" action="">
 		<input type="hidden" name="generate" value="true">
-		<input type="submit" value="Generate New Seating">
+		<input type="submit" value="Regenerate Seating">
+	</form>
+	<form method="post" action="">
+		<input type="hidden" name="keystring" value="{{ keystring }}">
+		<h4>Save Seating Arrangement</h4>
+		<label>Day<input name="day" type="text"></label>
+		<input type="submit" value="Save">
 	</form>
 	<a href="/students">Manage Students</a>
 </body>
