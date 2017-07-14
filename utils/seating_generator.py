@@ -1,20 +1,36 @@
 import logging
 import random
 
+def sort_by_score(s):
+    return s.score
+    
+def get_sort_function(a):
+    def _sort(b):
+        return abs(a.score - b.score)
+        
+    return _sort
+
+
 class Vertex(object):
     def __init__(self, student, possible_pairs):
         self.student = student
         self.id = student.key
+        self.score = self._get_score(student.rows)
         self.possible_pairs = possible_pairs
-        random.shuffle(self.possible_pairs)
-        self.pair = None
-
+        self.possible_pairs.sort(get_sort_function(self), reverse=True)
+        self.pair = None   
+        
+    def _get_score(self, scores):
+        if len(scores) == 0:
+            return 2.0
+        return sum(scores) / len(scores)
+        
 
 class SeatingGenerator(object):
     def __init__(self, students):
         # A map of students to possible pairs
         self.vertices = self._build_student_graph(students)
-        random.shuffle(self.vertices)
+        self.vertices.sort(sort_by_score)
         
         self.ids_to_vertices = {}
         for v in self.vertices:
@@ -24,19 +40,6 @@ class SeatingGenerator(object):
         
     def generate_seating(self):
         self._find_maximal_matching()
-        
-        # PASTED FOR DEBUGGING
-        seen = {}
-        pairs_list = []
-        for v in self.vertices:
-            if not seen.get(v.id, False):
-                logging.warning([v.student.name, v.pair.student.name])
-                pairs_list.extend([v.student, v.pair.student])
-                seen[v.id] = True
-                seen[v.pair.id] = True
-                
-        logging.warning("\n\n\n\n\n")
-        # THAT STUFF WAS PASTED > YEAH
         
         unpaired = self._get_unpaired()
         for u in unpaired:
@@ -51,11 +54,9 @@ class SeatingGenerator(object):
                 pairs_list.extend([v.student, v.pair.student])
                 seen[v.id] = True
                 seen[v.pair.id] = True
-        
-        if len(pairs_list) > 30:
-            logging.warning(len(pairs_list))
-            logging.warning([str(s.name) for s in pairs_list])
-            raise Exception()
+
+        logging.info([(s.name, s.score) for s in pairs_list])
+
         return pairs_list
                 
     def _build_student_graph(self, students):
@@ -66,8 +67,8 @@ class SeatingGenerator(object):
             possible_pairs = list(all_student_set - paired_set - set([student.key]))
             vertices.append(Vertex(student, possible_pairs))
             
-        return vertices 
-        
+        return vertices
+
     def _find_maximal_matching(self) :
         for a in self.vertices:
             if not self.paired.get(a.id, False):
@@ -82,19 +83,11 @@ class SeatingGenerator(object):
         return self._choose_student(a.possible_pairs)
  
     def _choose_student(self, students):
-        rand_i = random.randint(0, len(students) - 1)
-        s = students[rand_i]
-        count = 1
-        while self.paired.get(s, False) and count < len(students):
-            rand_i += 1
-            s = students[rand_i % len(students)]
-            count += 1
-         
-        if count >= len(students):
-            # All students were already paired
-            return None
+        for s in students:
+            if not self.paired.get(s, False):
+                return self.ids_to_vertices[s]
 
-        return self.ids_to_vertices[s]
+        return None
         
     def _get_unpaired(self):
         return [v for v in self.vertices if not self.paired.get(v.id, False)]
