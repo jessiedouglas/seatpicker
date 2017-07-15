@@ -9,20 +9,25 @@ def get_sort_function(a):
         return abs(a.score - b.score)
         
     return _sort
+    
+def sort_pairs(pair):
+    return (pair[0].score + pair[1].score) / 2
 
 
 class Vertex(object):
     def __init__(self, student, possible_pairs):
         self.student = student
         self.id = student.key
-        self.score = self._get_score(student.rows)
+        self.score = self._get_score(student.columns)
         self.possible_pairs = possible_pairs
-        self.possible_pairs.sort(get_sort_function(self), reverse=True)
+        # Sort possible pairs so that pairs with the smallest difference in score
+        # come first in the list.
+        self.possible_pairs.sort(get_sort_function(self))
         self.pair = None   
         
     def _get_score(self, scores):
         if len(scores) == 0:
-            return 2.0
+            return 0.0
         return sum(scores) / len(scores)
         
 
@@ -51,9 +56,11 @@ class SeatingGenerator(object):
         pairs_list = []
         for v in self.vertices:
             if not seen.get(v.id, False):
-                pairs_list.extend([v.student, v.pair.student])
+                pairs_list.append([v.student, v.pair.student])
                 seen[v.id] = True
                 seen[v.pair.id] = True
+        pairs_list.sort(sort_pairs)
+        pairs_list = self._seat_pairs_in_columns(pairs_list)
 
         logging.info([(s.name, s.score) for s in pairs_list])
 
@@ -116,4 +123,15 @@ class SeatingGenerator(object):
         self.paired[b.id] = True
         a.pair = b
         b.pair = a
+        
+    def _seat_pairs_in_columns(self, pairs_list):
+        seating = []
+        for n in range(pairs_list):
+            if n % 6 == 2 or n % 6 == 3:
+                seating.extend(pairs_list.pop())
+            else:
+                seating.extend(pairs_list[0])
+                pairs_list = pairs_list[1:]
+        
+        return seating
         
