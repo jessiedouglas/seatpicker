@@ -4,14 +4,18 @@ import random
 def sort_by_score(s):
     return s.score
     
-def get_sort_function(a):
+def get_sort_function(a, ids_to_vertices):
     def _sort(b):
-        return abs(a.score - b.score)
+        b_vertex = ids_to_vertices[b]
+        return abs(a.score - b_vertex.score)
         
     return _sort
-    
-def sort_pairs(pair):
-    return (pair[0].score + pair[1].score) / 2
+
+def get_sort_function2(ids_to_vertices):
+    def sort_pairs(pair):
+        a = ids_to_vertices[pair[0].id]
+        b = ids_to_vertices[pair[1].id]
+        return min([a.score, b.score])
 
 
 class Vertex(object):
@@ -20,9 +24,6 @@ class Vertex(object):
         self.id = student.key
         self.score = self._get_score(student.columns)
         self.possible_pairs = possible_pairs
-        # Sort possible pairs so that pairs with the smallest difference in score
-        # come first in the list.
-        self.possible_pairs.sort(get_sort_function(self))
         self.pair = None   
         
     def _get_score(self, scores):
@@ -30,16 +31,27 @@ class Vertex(object):
             return 0.0
         return sum(scores) / len(scores)
         
+    def sort_pairs(self, ids_to_vertices):
+        # Sort possible pairs so that pairs with the smallest difference in score
+        # come first in the list.
+        random.shuffle(self.possible_pairs)
+        sort_function = get_sort_function(self, ids_to_vertices)
+        self.possible_pairs.sort(key=sort_function)
+        
 
 class SeatingGenerator(object):
     def __init__(self, students):
         # A map of students to possible pairs
         self.vertices = self._build_student_graph(students)
-        self.vertices.sort(sort_by_score)
+        random.shuffle(self.vertices)
+        self.vertices.sort(key=sort_by_score)
         
         self.ids_to_vertices = {}
         for v in self.vertices:
             self.ids_to_vertices[v.id] = v
+            
+        for v in self.vertices:
+            v.sort_pairs(self.ids_to_vertices)
         # A map of vertices to whether they have been paired
         self.paired = {}
         
@@ -59,10 +71,10 @@ class SeatingGenerator(object):
                 pairs_list.append([v.student, v.pair.student])
                 seen[v.id] = True
                 seen[v.pair.id] = True
-        pairs_list.sort(sort_pairs)
+        pairs_list.sort(key=get_sort_function2(self.ids_to_vertices))
         pairs_list = self._seat_pairs_in_columns(pairs_list)
 
-        logging.info([(s.name, s.score) for s in pairs_list])
+        logging.info([(s.name, self.ids_to_vertices[s.key].score) for s in pairs_list])
 
         return pairs_list
                 
@@ -87,12 +99,13 @@ class SeatingGenerator(object):
         return self._choose_student(self.vertices)
         
     def _choose_second_of_pair(self, a):
-        return self._choose_student(a.possible_pairs)
+        pairs_as_vertices = [self.ids_to_vertices[s] for s in a.possible_pairs]
+        return self._choose_student(pairs_as_vertices)
  
     def _choose_student(self, students):
         for s in students:
-            if not self.paired.get(s, False):
-                return self.ids_to_vertices[s]
+            if not self.paired.get(s.id, False):
+                return s
 
         return None
         
@@ -103,6 +116,9 @@ class SeatingGenerator(object):
         # We want a to appear to have been paired
         self.paired[a.id] = True
         
+        logging.warning(len(self.vertices))
+        logging.warning(self.paired)
+        logging.warning(len(self.paired))
         b = self._choose_first_of_pair()
         
         # Find c and d paired, s.t. a can pair with c and b can pair with d
@@ -126,7 +142,7 @@ class SeatingGenerator(object):
         
     def _seat_pairs_in_columns(self, pairs_list):
         seating = []
-        for n in range(pairs_list):
+        for n in range(len(pairs_list)):
             if n % 6 == 2 or n % 6 == 3:
                 seating.extend(pairs_list.pop())
             else:

@@ -28,37 +28,23 @@
 	<div>
 		{{msg}}
 	</div>	
-	{% endif %}
+	{% endif %}	
 	
-	{% if not day == None %}
-	<h1 id="day">
-		Day {{day}}
-	</h1>	
-	{% endif %}
-	
+	{% for sa in seating_arrangements %}
 	<section id="room" class="clearfix">
-		{% for i in range(0, students|length, 6) %}
+		<h1>Day {{sa.day}}</h1>
+		{% for i in range(0, sa.students|length, 6) %}
 		{% if i == 24 %}
 		<div class="table clearfix" id="backtable">
 		{% else %}
 		<div class="table clearfix">
 		{% endif %}
 			{% for j in range(6) %}
-			<div class="student">{{ students[i + j].name }}</div>
+			<div class="student">{{ sa.students[i + j].get().name }}</div>
 			{% endfor %}
 		</div>
 		{% endfor %}
 	</section>
-	
-	<form method="get" action="">
-		<input type="submit" value="Regenerate Seating">
-	</form>
-	<form method="post" action="">
-		<input type="hidden" name="keystring" value="{{ keystring }}">
-		<h4>Save Seating Arrangement</h4>
-		<label>Day<input name="day" type="text"></label>
-		<input type="submit" value="Save">
-	</form>
-	<a href="/students">Manage Students</a>
+	{% endfor %}
 </body>
 </html>
