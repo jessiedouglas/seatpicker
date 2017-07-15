@@ -51,6 +51,8 @@ class SeatingHandler(webapp2.RequestHandler):
             student_b = student_list[i + 1]
             student_a.already_paired.append(student_b.key)
             student_b.already_paired.append(student_a.key)
+            student_a.columns.append(self._get_column_score(i))
+            student_b.columns.append(self._get_column_score(i + 1))
             
         sa = seating_arrangement.SeatingArrangement(
             day=int(self.request.get("day")),
@@ -59,3 +61,12 @@ class SeatingHandler(webapp2.RequestHandler):
         sa.put()
         for student in student_list:
             student.put()
+            
+    def _get_column_score(i):
+        if i in [1, 12, 13, 24]:
+            return 2.0
+        
+        if i in [2, 3, 10, 11, 14, 15, 22, 23, 25, 30]:
+            return 1.0
+            
+        return 0.0
