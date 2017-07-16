@@ -1,6 +1,7 @@
 <html>
 <header>
 	<title>Students</title>
+	<link href="/resources/css/students.css" rel="stylesheet" type="text/css">
 </header>
 <body>
 	{% if not msg == None %}
@@ -14,18 +15,18 @@
 	
 	<h1>Students</h1>
 	{% if students|length > 0 %}
-		<ul>
+		<section class="clearfix">
 		{% for student in students %}
 			<form method="post" action="/student">
 				<input type="hidden" name="_method" value="delete">
-				<li>
-					<p>{{ student.name }}</p>
+				<div class="student clearfix">
+					<p class="name">{{ student.name }}</p>
 					<input type="hidden" name="key" value="{{ student.key.urlsafe() }}">
-					<input type="submit" value="delete">
-				</li>
+					<input type="submit" value="delete" class="delete-button">
+				</div>
 			</form>
 		{% endfor %}
-		</ul>
+		</section>
 	{% else %}
 	<p>No students found!</p>
 	{% endif %}

@@ -1,0 +1,23 @@
+.clearfix:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+.student {
+	float: left;
+	width: 25%;
+	padding-left: 50px;
+	border: 1px solid #ccc;
+}
+
+.name {
+	float:left;
+}
+
+.delete-button {
+	float: right;
+	margin-top: 15px;
+	margin-right: 20px;
+}
+
