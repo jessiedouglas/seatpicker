@@ -1,0 +1,28 @@
+.clearfix:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+.table {
+	margin-left: 50px;
+	margin-bottom: 50px;
+}
+
+.student {
+	border: 2px solid black;
+	float: left;
+	width: 100px;
+	text-align: center;
+	padding: 10px 0px;
+}
+
+#left {
+	float: left;
+	width: 50%;
+}
+
+#right {
+	float: right;
+	width: 50%;
+}
