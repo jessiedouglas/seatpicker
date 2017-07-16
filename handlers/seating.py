@@ -49,7 +49,7 @@ class SeatingHandler(webapp2.RequestHandler):
         except Exception as e:
             msg = "Error... %s" % e
             logging.info(msg)
-            self.render(students, msg=msg)
+            self.render_one(students, msg=msg)
             return
         
         msg = "Seating arrangement saved!"
@@ -90,10 +90,19 @@ class SeatingHandler(webapp2.RequestHandler):
         return True
             
     def _get_column_score(self, i):
-        if i in [1, 12, 13, 24]:
-            return 2.0
+        if i in [0, 11, 12, 23]:
+            return 5.0
         
-        if i in [2, 3, 10, 11, 14, 15, 22, 23, 25, 30]:
+        if i in [1, 10, 13, 22]:
+            return 4.0
+            
+        if i in [2, 9, 14, 21, 24, 29]:
+            return 3.0
+            
+        if i in [3, 8, 15, 20]:
+            return 2.0
+            
+        if i in [4, 7, 16, 19, 25, 26, 27, 28]:
             return 1.0
             
         return 0.0

@@ -15,7 +15,7 @@ def get_sort_function2(ids_to_vertices):
     def sort_pairs(pair):
         a = ids_to_vertices[pair[0].id]
         b = ids_to_vertices[pair[1].id]
-        return min([a.score, b.score])
+        return max([a.score, b.score])
 
 
 class Vertex(object):
