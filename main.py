@@ -16,10 +16,12 @@
 #
 import webapp2
 
+from handlers import home
 from handlers import students
 from handlers import seating
 
 app = webapp2.WSGIApplication([
-    ('/', seating.SeatingHandler),
+    ('/', home.HomeHandler),
+    ('/seating', seating.SeatingHandler),
     ('/student', students.StudentHandler)
 ], debug=True)

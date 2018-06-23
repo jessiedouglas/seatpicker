@@ -5,18 +5,19 @@
 	<link href="/resources/css/seating.css" rel="stylesheet" type="text/css">
 </heading>
 <body>
+	{{ nav_bar }}
 	{% if not msg == None %}
 	<div>
 		{{msg}}
-	</div>	
+	</div>
 	{% endif %}
-	
+
 	{% if not day == None %}
 	<h1 id="day">
 		Day {{day}}
-	</h1>	
+	</h1>
 	{% endif %}
-	
+
 	<section id="room" class="clearfix">
 		<div id="left"></div>
 		<div id="right"></div>
@@ -30,7 +31,7 @@
 		{% endfor %}
 	</div>
 	{% endfor %}
-	
+
 	<form method="get" action="">
 		<input type="submit" value="Regenerate Seating">
 	</form>
@@ -40,8 +41,6 @@
 		<label>Day<input name="day" type="text"></label>
 		<input type="submit" value="Save" id="save">
 	</form>
-	<a href="/student">Manage Students</a>
-	<a href="/?list=true">See All Previous Arrangements</a>
 	<script src='/resources/scripts/dragula.min.js'></script>
 	<script src='/resources/scripts/seating.js'></script>
 	<script>

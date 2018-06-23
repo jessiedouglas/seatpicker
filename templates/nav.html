@@ -1,0 +1,16 @@
+<nav>
+  {% if user %}
+    <div>
+      <a href="/">Home</a>
+      <a href="/seating">Seating</a>
+      <a href="/seating?list=true">See All Seating Arrangements</a>
+      <a href="/student">Manage Students</a>
+    </div>
+    <div>
+      <p>Welcome, {{ user }}!</p>
+      <a href="{{ logout_url }}"></a>
+    </div>
+  {% else %}
+    <a href="{{ login_url }}">Sign In</a>
+  {% endif %}
+</nav>

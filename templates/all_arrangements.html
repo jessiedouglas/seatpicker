@@ -4,14 +4,13 @@
 	<link href="/resources/css/all_seating.css" rel="stylesheet" type="text/css">
 </heading>
 <body>
+	{{ nav_bar }}
 	{% if not msg == None %}
 	<div>
 		{{msg}}
-	</div>	
-	{% endif %}	
-	<a href="/">Generate Seating</a>
-	<a href="/student">Manage Students</a>
-	
+	</div>
+	{% endif %}
+
 	{% for sa in seating_arrangements %}
 	<section id="room" class="clearfix">
 		<h1>Day {{sa.day}}</h1>
