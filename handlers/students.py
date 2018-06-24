@@ -1,5 +1,6 @@
 import webapp2
 import logging
+import json
 
 from google.appengine.ext import ndb
 from google.appengine.api import users
@@ -15,10 +16,11 @@ class StudentHandler(webapp2.RequestHandler):
         if self.request.get('_method') == 'delete':
             self.delete()
             return
-
+        logging.info(self.request)
+        logging.info(type(self.request))
         name = self.request.get('name')
+        logging.info('name: %s', name)
         s = student.Student(name=name)
-        all_students = student.Student.query().fetch()
 
         try:
             key = s.put()
@@ -29,8 +31,11 @@ class StudentHandler(webapp2.RequestHandler):
             return
 
         msg = "Successfully saved student %s!" % name
-        logging.info(msg)
-        all_students.append(key.get())
+        studentJson = json.dumps({
+            'name': s.name,
+            'id': s.key.urlsafe()
+        })
+        self.response.write(studentJson)
 
     def delete(self):
         urlsafe = self.request.get('key')

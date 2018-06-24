@@ -27,9 +27,9 @@ class ClassroomHandler(webapp2.RequestHandler):
             self.redirect('/')
 
         classrooms = classroom.Classroom.query().fetch()
-        urlsafe = self.request.get("classroom")
+        urlsafe = self.request.get("id")
         if urlsafe:
-            classroom_id = mdb.Key(urlsafe = urlsafe)
+            classroom_id = ndb.Key(urlsafe = urlsafe)
             c = classroom_id.get()
             students = student.Student.query().filter(
                 student.Student.classroom==classroom_id).fetch()
@@ -61,7 +61,7 @@ class ClassroomHandler(webapp2.RequestHandler):
 
         msg = "Successfully saved class %s!" % name
 
-        self._render(classrooms, c=c, msg=msg)
+        self.redirect("/classroom?id=%s".format(c.key.urlsafe()))
 
     def delete(self):
         urlsafe = self.request.get('key')

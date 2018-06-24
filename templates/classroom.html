@@ -10,12 +10,11 @@
 		{{msg}}
 	</div>
 	{% endif %}
-	{{ classrooms }}
 
   {% if classrooms|length > 0 %}
 		<form method="get" action="/classroom">
 			<label>Select a Class
-				<select name="class">
+				<select name="id">
 					<option value=""></option>
 					{% for classroom_select in classrooms %}
 						<option value="{{ classroom_select.key.urlsafe() }}">
@@ -28,7 +27,7 @@
 	  </form>
 	{% endif %}
 
-	<form method="post" action="/classroom">
+	<form>
 		<h3>Add a new classroom:</h3>
 		<label>Name
 			<input name="name" type="text">
@@ -38,31 +37,31 @@
 
 	{% if classroom %}
 		<h1>Students</h1>
-		{% if students|length > 0 %}
-			<section class="clearfix">
-			{% for student in students %}
-				<!-- TODO: Make this an AJAX request -->
-				<form method="post" action="/student">
-					<input type="hidden" name="_method" value="delete">
-					<div class="student clearfix">
-						<p class="name">{{ student.name }}</p>
-						<input type="hidden" name="key" value="{{ student.key.urlsafe() }}">
-						<input type="submit" value="delete" class="delete-button">
-					</div>
-				</form>
-			{% endfor %}
-			</section>
-		{% else %}
-		<p>No students found!</p>
-		{% endif %}
+		<section class="clearfix" id="students">
+			{% if students|length > 0 %}
+				{% for student in students %}
+					<!-- TODO: Make this an AJAX request -->
+					<form method="post" action="/student">
+						<input type="hidden" name="_method" value="delete">
+						<div class="student clearfix">
+							<p class="name">{{ student.name }}</p>
+							<input type="hidden" name="key" value="{{ student.key.urlsafe() }}">
+							<input type="submit" value="delete" class="delete-button">
+						</div>
+					</form>
+				{% endfor %}
+			{% else %}
+				<p>No students found!</p>
+			{% endif %}
+		</section>
+
 
 		<h3>Add a Student</h3>
-		<!-- TODO: Make this an AJAX request -->
-		<form method="post" action="/student">
+		<form>
 			<label>Name
-				<input name="name" type="text">
+				<input id="studentName" type="text">
 			</label>
-			<input type="submit">
+			<button id="addStudent">Submit</button>
 		</form>
 
 		<form method="post" action="/classroom">
@@ -70,5 +69,9 @@
 			<button>Delete classroom {{ classroom.name }}</button>
 		</form>
 	{% endif %}
+	<script src='/resources/scripts/students.js'></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', Student.main, false);
+	</script>
 </body>
 </html>
