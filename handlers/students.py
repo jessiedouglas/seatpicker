@@ -16,11 +16,10 @@ class StudentHandler(webapp2.RequestHandler):
         if self.request.get('_method') == 'delete':
             self.delete()
             return
-        logging.info(self.request)
-        logging.info(type(self.request))
+
         name = self.request.get('name')
-        logging.info('name: %s', name)
-        s = student.Student(name=name)
+        classroom_key = ndb.Key(urlsafe=self.request.get('classroom_id'))
+        s = student.Student(name=name, classroom=classroom_key)
 
         try:
             key = s.put()

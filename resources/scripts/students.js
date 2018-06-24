@@ -8,21 +8,23 @@ Student.main = function() {
     addStudentButton.addEventListener('click', (event) => {
       event.preventDefault();
       const nameEl = document.querySelector('#studentName');
-      Student.saveStudent_(nameEl.value).then((response) => {
+      const classroom_id = document.querySelector('#classroom-id').innerText;
+      Student.saveStudent_(nameEl.value, classroom_id).then((response) => {
         return response.json();
       }).then(Student.appendStudent_);
     });
   }
 }
 
-Student.saveStudent_ = function(name) {
+Student.saveStudent_ = function(name, classroom_id) {
   if (!name) return Promise.reject();
 
   const options = {
     method: 'POST',
     credentials: 'same-origin'
   }
-  const request = new Request('/student?name=' + name, options);
+  const request = new Request(
+    '/student?name=' + name + '&classroom_id=' + classroom_id, options);
   return fetch(request);
 }
 

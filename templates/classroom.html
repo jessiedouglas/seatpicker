@@ -36,7 +36,9 @@
   </form>
 
 	{% if classroom %}
-		<h1>Students</h1>
+		<h1>Class {{ classroom.name }}</h1>
+		<p id="classroom-id" hidden>{{ classroom.key.urlsafe() }}</p>
+		<h2>Students</h2>
 		<section class="clearfix" id="students">
 			{% if students|length > 0 %}
 				{% for student in students %}
