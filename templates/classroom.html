@@ -27,7 +27,7 @@
 	  </form>
 	{% endif %}
 
-	<form>
+	<form method="post" action="/classroom">
 		<h3>Add a new classroom:</h3>
 		<label>Name
 			<input name="name" type="text">
@@ -64,6 +64,7 @@
 
 		<form method="post" action="/classroom">
 			<input type="hidden" name="_method" value="delete">
+			<input type="hidden" name="id" value="{{ classroom.key.urlsafe() }}">
 			<button>Delete classroom {{ classroom.name }}</button>
 		</form>
 	{% endif %}

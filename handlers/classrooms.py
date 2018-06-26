@@ -27,16 +27,25 @@ class ClassroomHandler(webapp2.RequestHandler):
             self.redirect('/')
 
         classrooms = classroom.Classroom.query().fetch()
+
+        c = None
         urlsafe = self.request.get("id")
         if urlsafe:
-            classroom_id = ndb.Key(urlsafe = urlsafe)
+            classroom_id = ndb.Key(urlsafe=urlsafe)
             c = classroom_id.get()
+
+        if c:
+            self._add_classroom_if_not_present(classrooms, c)
             students = student.Student.query().filter(
                 student.Student.classroom==classroom_id).fetch()
+            sorted(classrooms, key=lambda c: c.name)
             self._render(classrooms, c=c, students=students)
         else:
-            self._render(classrooms)
-
+            msg = None
+            if urlsafe and not c:
+                msg = "Error: Classroom has been deleted."
+            sorted(classrooms, key=lambda c: c.name)
+            self._render(classrooms, msg=msg)
 
     def post(self):
         if not users.get_current_user():
@@ -61,15 +70,28 @@ class ClassroomHandler(webapp2.RequestHandler):
 
         msg = "Successfully saved class %s!" % name
 
-        self.redirect("/classroom?id=%s".format(c.key.urlsafe()))
+        self.redirect("/classroom?id=%s" % c.key.urlsafe())
 
     def delete(self):
-        urlsafe = self.request.get('key')
+        urlsafe = self.request.get('id')
         key = ndb.Key(urlsafe=urlsafe)
+        students = student.Student.query().filter(
+            student.Student.classroom==key).fetch()
         name = key.get().name
         key.delete()
+
+        for s in students:
+            s.key.delete()
+
         msg = "Deleted class %s." % name
         logging.info(msg)
 
-        classrooms = classroom.Classroom.query().fetch()
-        self._render(classrooms, msg=msg)
+        self.redirect("/classroom")
+
+    def _add_classroom_if_not_present(self, all_classrooms, classroom):
+        seen = {}
+        for c in all_classrooms:
+            seen[c.key] = True
+
+        if not seen.get(classroom.key, False):
+            all_classrooms.append(classroom)
