@@ -42,15 +42,11 @@
 		<section class="clearfix" id="students">
 			{% if students|length > 0 %}
 				{% for student in students %}
-					<!-- TODO: Make this an AJAX request -->
-					<form method="post" action="/student">
-						<input type="hidden" name="_method" value="delete">
-						<div class="student clearfix">
-							<p class="name">{{ student.name }}</p>
-							<input type="hidden" name="key" value="{{ student.key.urlsafe() }}">
-							<input type="submit" value="delete" class="delete-button">
-						</div>
-					</form>
+					<div class="student clearfix">
+						<p class="student-name name">{{ student.name }}</p>
+						<p class="student-id" hidden>{{ student.key.urlsafe() }}</p>
+						<button class="delete-button">Delete</button>
+					</div>
 				{% endfor %}
 			{% else %}
 				<p>No students found!</p>

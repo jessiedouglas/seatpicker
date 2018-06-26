@@ -37,11 +37,9 @@ class StudentHandler(webapp2.RequestHandler):
         self.response.write(studentJson)
 
     def delete(self):
-        urlsafe = self.request.get('key')
+        urlsafe = self.request.get('id')
         key = ndb.Key(urlsafe=urlsafe)
         name = key.get().name
         key.delete()
         msg = "Deleted student %s." % name
         logging.info(msg)
-
-        students = student.Student.query().fetch()

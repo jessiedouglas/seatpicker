@@ -11,7 +11,7 @@
 	border: 1px solid #ccc;
 }
 
-.name {
+.student-name {
 	float:left;
 }
 
@@ -20,4 +20,3 @@
 	margin-top: 15px;
 	margin-right: 20px;
 }
-
