@@ -17,11 +17,15 @@ env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
 class SeatingHandler(webapp2.RequestHandler):
     def _render_one(self, c=None, students=[], msg=None, day=None):
         template = env.get_template('seating.html')
+
+        classrooms = classroom.Classroom.query().fetch()
+        classrooms = sorted(classrooms, key=lambda c: c.name)
+
         vars_dict = {
             "nav_bar": rendering_util.get_nav_bar(),
             "msg": msg,
             "classroom": c,
-            "classrooms": classroom.Classroom.query().fetch(),
+            "classrooms": classrooms,
             "day": day,
             "students": students,
             "keystring": ','.join([s.key.urlsafe() for s in students]),

@@ -5,7 +5,6 @@ import json
 from google.appengine.ext import ndb
 from google.appengine.api import users
 from models import student
-from utils import rendering_util
 
 
 class StudentHandler(webapp2.RequestHandler):

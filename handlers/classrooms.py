@@ -11,8 +11,14 @@ from utils import rendering_util
 env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
 
 class ClassroomHandler(webapp2.RequestHandler):
-    def _render(self, classrooms, c=None, students=[], msg=None):
+    def _render(self, classrooms=[], c=None, students=[], msg=None):
         template = env.get_template('classroom.html')
+
+        if len(classrooms) == 0:
+            classrooms = classroom.Classroom.query().fetch()
+
+        classrooms = sorted(classrooms, key=lambda c: c.name)
+
         vars_dict = {
             "nav_bar": rendering_util.get_nav_bar(),
             "msg": msg,
@@ -26,8 +32,6 @@ class ClassroomHandler(webapp2.RequestHandler):
         if not users.get_current_user():
             self.redirect('/')
 
-        classrooms = classroom.Classroom.query().fetch()
-
         c = None
         urlsafe = self.request.get("id")
         if urlsafe:
@@ -35,17 +39,16 @@ class ClassroomHandler(webapp2.RequestHandler):
             c = classroom_id.get()
 
         if c:
+            classrooms = classroom.Classroom.query().fetch()
             self._add_classroom_if_not_present(classrooms, c)
             students = student.Student.query().filter(
                 student.Student.classroom==classroom_id).fetch()
-            sorted(classrooms, key=lambda c: c.name)
-            self._render(classrooms, c=c, students=students)
+            self._render(classrooms=classrooms, c=c, students=students)
         else:
             msg = None
             if urlsafe and not c:
                 msg = "Error: Classroom has been deleted."
-            sorted(classrooms, key=lambda c: c.name)
-            self._render(classrooms, msg=msg)
+            self._render(msg=msg)
 
     def post(self):
         if not users.get_current_user():
@@ -55,8 +58,6 @@ class ClassroomHandler(webapp2.RequestHandler):
             self.delete()
             return
 
-        classrooms = classroom.Classroom.query().fetch()
-
         name = self.request.get('name')
         c = classroom.Classroom(name=name)
 
@@ -65,10 +66,8 @@ class ClassroomHandler(webapp2.RequestHandler):
         except Exception as e:
             msg = "oops... %s" % e
             logging.info(msg)
-            self._render(classrooms, msg=msg)
+            self._render(msg=msg)
             return
-
-        msg = "Successfully saved class %s!" % name
 
         self.redirect("/classroom?id=%s" % c.key.urlsafe())
 
