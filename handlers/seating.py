@@ -15,24 +15,26 @@ env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
 
 
 class SeatingHandler(webapp2.RequestHandler):
-    def _render_one(self, classrooms, c=None, students=[], msg=None, day=None):
+    def _render_one(self, c=None, students=[], msg=None, day=None):
         template = env.get_template('seating.html')
         vars_dict = {
             "nav_bar": rendering_util.get_nav_bar(),
             "msg": msg,
             "classroom": c,
-            "classrooms": classrooms,
+            "classrooms": classroom.Classroom.query().fetch(),
             "day": day,
             "students": students,
             "keystring": ','.join([s.key.urlsafe() for s in students]),
         }
         self.response.out.write(template.render(vars_dict))
 
-    def _render_all(self, seating_arrangements, msg=None):
+    def _render_all(self, c=None, seating_arrangements=[], msg=None):
         template = env.get_template('all_arrangements.html')
         vars_dict = {
             "nav_bar": rendering_util.get_nav_bar(),
             "msg": msg,
+            "classroom": c,
+            "classrooms": classroom.Classroom.query().fetch(),
             "seating_arrangements": seating_arrangements,
         }
         self.response.out.write(template.render(vars_dict))
@@ -48,17 +50,24 @@ class SeatingHandler(webapp2.RequestHandler):
             c = key.get()
 
         if self.request.get("list") == "true":
-            seating_arrangements = seating_arrangement.SeatingArrangement.query().fetch()
-            seating_arrangements.sort(key=lambda sa: sa.day)
-            self._render_all(seating_arrangements)
+            seating_arrangements = []
+            if c:
+                query = seating_arrangement.SeatingArrangement.query()
+                filtered = query.filter(
+                        seating_arrangement.SeatingArrangement.classroom==c.key)
+                seating_arrangements = filtered.fetch()
+                seating_arrangements.sort(key=lambda sa: sa.day)
+
+            self._render_all(c=c, seating_arrangements=seating_arrangements)
         else:
             students = []
-            classrooms = classroom.Classroom.query().fetch()
             if c:
-                students = student.Student.query().filter(student.Student.classroom==c.key).fetch()
-                students = seating_generator.SeatingGenerator(students).generate_seating()
+                students = student.Student.query().filter(
+                    student.Student.classroom==c.key).fetch()
+                students = seating_generator.SeatingGenerator(
+                    students).generate_seating()
 
-            self._render_one(classrooms, c=c, students=students)
+            self._render_one(c=c, students=students)
 
     def post(self):
         if not users.get_current_user():
@@ -67,23 +76,22 @@ class SeatingHandler(webapp2.RequestHandler):
         student_str = self.request.get("keystring")
         students = self._get_student_list(student_str)
         classroom_key = ndb.Key(urlsafe=self.request.get("classroom_id"))
+        c = None
+        if classroom_key:
+            c = classroom_key.get()
 
         try:
             arrangement = self._save_arrangement(classroom_key, students)
         except Exception as e:
             msg = "Error... %s" % e
             logging.info(msg)
-            self._render_one(students, msg=msg)
+            self._render_one(c=c, students=students, msg=msg)
             return
 
         msg = "Seating arrangement saved!"
         logging.info(msg)
-        c = None
-        if classroom_key:
-            c = classroom_key.get()
-        classrooms = classroom.Classroom.query().fetch()
-        self._render_one(
-            classrooms, c=c, students=students, msg=msg, day=arrangement.day)
+
+        self._render_one(c=c, students=students, msg=msg, day=arrangement.day)
 
     def _get_student_list(self, student_str):
         key_list = student_str.split(',')

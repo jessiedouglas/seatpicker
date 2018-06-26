@@ -11,21 +11,40 @@
 	</div>
 	{% endif %}
 
-	{% for sa in seating_arrangements %}
-	<section id="room" class="clearfix">
-		<h1>Day {{sa.day}}</h1>
-		{% for i in range(0, sa.students|length, 6) %}
-		{% if i == 24 %}
-		<div class="table clearfix" id="backtable">
-		{% else %}
-		<div class="table clearfix">
-		{% endif %}
-			{% for j in range(6) %}
-			<div class="student">{{ sa.students[i + j].get().name }}</div>
-			{% endfor %}
-		</div>
+	{% if classrooms|length > 0 %}
+		<form method="get" action="/seating">
+			<input type="hidden" name="list" value="true"
+			<label>Select a Class
+				<select name="classroom">
+					<option value=""></option>
+					{% for classroom_select in classrooms %}
+						<option value="{{ classroom_select.key.urlsafe() }}">
+							{{ classroom_select.name }}
+						</option>
+					{% endfor %}
+				</select>
+			</label>
+			<button>Go!</button>
+	  </form>
+	{% endif %}
+
+	{% if classroom %}
+		{% for sa in seating_arrangements %}
+			<section id="room" class="clearfix">
+				<h1>Day {{sa.day}}</h1>
+				{% for i in range(0, sa.students|length, 6) %}
+				{% if i == 24 %}
+				<div class="table clearfix" id="backtable">
+				{% else %}
+				<div class="table clearfix">
+				{% endif %}
+					{% for j in range(6) %}
+					<div class="student">{{ sa.students[i + j].get().name }}</div>
+					{% endfor %}
+				</div>
+				{% endfor %}
+			</section>
 		{% endfor %}
-	</section>
-	{% endfor %}
+	{% endif %}
 </body>
 </html>
