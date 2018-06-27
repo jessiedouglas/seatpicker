@@ -11,6 +11,7 @@ class StudentHandler(webapp2.RequestHandler):
     def post(self):
         if not users.get_current_user():
             self.redirect('/')
+            return
 
         if self.request.get('_method') == 'delete':
             self.delete()

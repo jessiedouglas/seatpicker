@@ -49,6 +49,7 @@ class SeatingHandler(webapp2.RequestHandler):
         current_user = users.get_current_user()
         if not current_user:
             self.redirect('/')
+            return
 
         urlsafe = self.request.get("classroom")
         c = None
@@ -86,6 +87,7 @@ class SeatingHandler(webapp2.RequestHandler):
     def post(self):
         if not users.get_current_user():
             self.redirect('/')
+            return
 
         student_str = self.request.get("keystring")
         students = self._get_student_list(student_str)
