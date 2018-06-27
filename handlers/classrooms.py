@@ -15,7 +15,7 @@ class ClassroomHandler(webapp2.RequestHandler):
         template = env.get_template('classroom.html')
 
         if len(classrooms) == 0:
-            classrooms = classroom.Classroom.query().fetch()
+            classrooms = self._get_classrooms()
 
         classrooms = sorted(classrooms, key=lambda c: c.name)
 
@@ -29,7 +29,8 @@ class ClassroomHandler(webapp2.RequestHandler):
         self.response.out.write(template.render(vars_dict))
 
     def get(self):
-        if not users.get_current_user():
+        current_user = users.get_current_user()
+        if not current_user:
             self.redirect('/')
 
         c = None
@@ -38,8 +39,12 @@ class ClassroomHandler(webapp2.RequestHandler):
             classroom_id = ndb.Key(urlsafe=urlsafe)
             c = classroom_id.get()
 
+        if c and c.user_id != users.get_current_user().user_id():
+            self._render(msg='Sorry, you do not own the requested classroom.')
+            return
+
         if c:
-            classrooms = classroom.Classroom.query().fetch()
+            classrooms = self._get_classrooms()
             self._add_classroom_if_not_present(classrooms, c)
             students = student.Student.query().filter(
                 student.Student.classroom==classroom_id).fetch()
@@ -59,7 +64,8 @@ class ClassroomHandler(webapp2.RequestHandler):
             return
 
         name = self.request.get('name')
-        c = classroom.Classroom(name=name)
+        c = classroom.Classroom(
+            name=name, user_id=users.get_current_user().user_id())
 
         try:
             key = c.put()
@@ -86,6 +92,11 @@ class ClassroomHandler(webapp2.RequestHandler):
         logging.info(msg)
 
         self.redirect("/classroom")
+
+    def _get_classrooms(self):
+        return classroom.Classroom.query().filter(
+            classroom.Classroom.user_id==users.get_current_user().user_id()
+        ).fetch()
 
     def _add_classroom_if_not_present(self, all_classrooms, classroom):
         seen = {}
