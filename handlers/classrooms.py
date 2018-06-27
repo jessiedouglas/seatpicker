@@ -6,6 +6,7 @@ from google.appengine.ext import ndb
 from google.appengine.api import users
 from models import student
 from models import classroom
+from models import seating_arrangement
 from utils import rendering_util
 
 env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
@@ -82,11 +83,17 @@ class ClassroomHandler(webapp2.RequestHandler):
         key = ndb.Key(urlsafe=urlsafe)
         students = student.Student.query().filter(
             student.Student.classroom==key).fetch()
+        seating_arrangements = (
+            seating_arrangement.SeatingArrangement.query().filter(
+                seating_arrangement.SeatingArrangement.classroom==key
+            ).fetch())
         name = key.get().name
         key.delete()
 
         for s in students:
             s.key.delete()
+        for sa in seating_arrangements:
+            sa.key.delete()
 
         msg = "Deleted class %s." % name
         logging.info(msg)

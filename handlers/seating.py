@@ -15,10 +15,12 @@ env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
 
 
 class SeatingHandler(webapp2.RequestHandler):
+    UNOWNED_RESOURCE_ERROR = 'Sorry, the requested classroom does not belong to you.'
+
     def _render_one(self, c=None, students=[], msg=None, day=None):
         template = env.get_template('seating.html')
 
-        classrooms = classroom.Classroom.query().fetch()
+        classrooms = self._get_classrooms()
         classrooms = sorted(classrooms, key=lambda c: c.name)
 
         vars_dict = {
@@ -38,13 +40,14 @@ class SeatingHandler(webapp2.RequestHandler):
             "nav_bar": rendering_util.get_nav_bar(),
             "msg": msg,
             "classroom": c,
-            "classrooms": classroom.Classroom.query().fetch(),
+            "classrooms": self._get_classrooms(),
             "seating_arrangements": seating_arrangements,
         }
         self.response.out.write(template.render(vars_dict))
 
     def get(self):
-        if not users.get_current_user():
+        current_user = users.get_current_user()
+        if not current_user:
             self.redirect('/')
 
         urlsafe = self.request.get("classroom")
@@ -55,6 +58,10 @@ class SeatingHandler(webapp2.RequestHandler):
 
         if self.request.get("list") == "true":
             seating_arrangements = []
+
+            if c and c.user_id != current_user.user_id():
+                self._render_all(msg=UNOWNED_RESOURCE_ERROR)
+
             if c:
                 query = seating_arrangement.SeatingArrangement.query()
                 filtered = query.filter(
@@ -64,6 +71,9 @@ class SeatingHandler(webapp2.RequestHandler):
 
             self._render_all(c=c, seating_arrangements=seating_arrangements)
         else:
+            if c and c.user_id != current_user.user_id():
+                self._render_one(msg=UNOWNED_RESOURCE_ERROR)
+
             students = []
             if c:
                 students = student.Student.query().filter(
@@ -96,6 +106,11 @@ class SeatingHandler(webapp2.RequestHandler):
         logging.info(msg)
 
         self._render_one(c=c, students=students, msg=msg, day=arrangement.day)
+
+    def _get_classrooms(self):
+        return classroom.Classroom.query().filter(
+            classroom.Classroom.user_id==users.get_current_user().user_id()
+        ).fetch()
 
     def _get_student_list(self, student_str):
         key_list = student_str.split(',')
