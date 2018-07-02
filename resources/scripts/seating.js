@@ -1,20 +1,12 @@
 function main() {
 	var saveButton = document.getElementById("save");
 	saveButton.onclick = saveArrangement;
-	
+
 	var c = document.getElementsByClassName("container");
-	var left = document.getElementById("left");
-	var right = document.getElementById("right");
 	var containers = [];
 	for (var i=0; i<c.length; i++) {
 		containers.push(c[i]);
-		if (i % 2 == 0) {
-			left.append(c[i]);
-		} else {
-			right.append(c[i]);
-		}
 	}
-	console.log(containers);
 
 	dragula(containers, {
 	  direction: 'horizontal',

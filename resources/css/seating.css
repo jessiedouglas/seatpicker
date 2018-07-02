@@ -7,6 +7,9 @@
 .table {
 	margin-left: 50px;
 	margin-bottom: 50px;
+	min-height: 30px;
+	border: 1px dashed black;
+	width: 208px;
 }
 
 .student {
@@ -17,12 +20,8 @@
 	padding: 10px 0px;
 }
 
-#left {
-	float: left;
-	width: 50%;
-}
-
-#right {
-	float: right;
-	width: 50%;
+#room {
+	display: flex;
+	flex-wrap: wrap;
+	width: 600px;
 }

@@ -40,18 +40,19 @@
 		{% endif %}
 
 		<section id="room" class="clearfix">
-			<div id="left"></div>
-			<div id="right"></div>
-		</section>
-		{% for i in range(0, students|length, 6) %}
-		<div class="table clearfix container" name="{{ i / 6 }}">
-			{% for j in range(6) %}
-				<div class="student" id="{{ students[i + j].key.urlsafe() }}">
-					{{ students[i + j].name }}
-				</div>
+			<!-- <div id="left"></div>
+			<div id="right"></div> -->
+
+			{% for i in range(0, students|length, 6) %}
+			<div class="table clearfix container" name="{{ i / 6 }}">
+				{% for j in range(6) %}
+					<div class="student" id="{{ students[i + j].key.urlsafe() }}">
+						{{ students[i + j].name }}
+					</div>
+				{% endfor %}
+			</div>
 			{% endfor %}
-		</div>
-		{% endfor %}
+		</section>
 
 		<form method="get" action="/seating">
 			<input type="hidden" name="classroom" value="{{classroom.key.urlsafe()}}">
