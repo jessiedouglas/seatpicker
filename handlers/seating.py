@@ -17,7 +17,7 @@ env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
 class SeatingHandler(webapp2.RequestHandler):
     UNOWNED_RESOURCE_ERROR = 'Sorry, the requested classroom does not belong to you.'
 
-    def _render_one(self, c=None, students=[], msg=None, day=None):
+    def _render_one(self, is_saved=False, c=None, students=[], msg=None, day=None):
         template = env.get_template('seating.html')
 
         classrooms = self._get_classrooms()
@@ -28,8 +28,9 @@ class SeatingHandler(webapp2.RequestHandler):
             "msg": msg,
             "classroom": c,
             "classrooms": classrooms,
-            "day": day,
+            "day": day if day else self._get_next_day(c),
             "students": students,
+            "is_saved": is_saved,
             "keystring": ','.join([s.key.urlsafe() for s in students]),
         }
         self.response.out.write(template.render(vars_dict))
@@ -64,11 +65,7 @@ class SeatingHandler(webapp2.RequestHandler):
                 self._render_all(msg=UNOWNED_RESOURCE_ERROR)
 
             if c:
-                query = seating_arrangement.SeatingArrangement.query()
-                filtered = query.filter(
-                        seating_arrangement.SeatingArrangement.classroom==c.key)
-                seating_arrangements = filtered.fetch()
-                seating_arrangements.sort(key=lambda sa: sa.day)
+                seating_arrangements = self._get_seating_arrangements(c)
 
             self._render_all(c=c, seating_arrangements=seating_arrangements)
         else:
@@ -107,7 +104,20 @@ class SeatingHandler(webapp2.RequestHandler):
         msg = "Seating arrangement saved!"
         logging.info(msg)
 
-        self._render_one(c=c, students=students, msg=msg, day=arrangement.day)
+        self._render_one(
+            is_saved=True, c=c, students=students, msg=msg, day=arrangement.day)
+
+    def _get_next_day(self, c):
+        seating_arrangements = self._get_seating_arrangements(c)
+        return seating_arrangements[-1].day + 1
+
+    def _get_seating_arrangements(self, c):
+        query = seating_arrangement.SeatingArrangement.query()
+        filtered = query.filter(
+                seating_arrangement.SeatingArrangement.classroom==c.key)
+        seating_arrangements = filtered.order(
+            seating_arrangement.SeatingArrangement.day).fetch()
+        return seating_arrangements
 
     def _get_classrooms(self):
         return classroom.Classroom.query().filter(

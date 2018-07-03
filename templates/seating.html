@@ -40,7 +40,7 @@
 				View all saved seating arrangements
 			</a>
 
-			{% if not day == None %}
+			{% if day and is_saved %}
 				<h1 id="day">
 					Day {{day}}
 				</h1>
@@ -63,13 +63,13 @@
 				<input type="submit" value="Regenerate Seating">
 			</form>
 
-			{% if day == None %}
+			{% if day and not is_saved %}
 				<form method="post" action="/seating">
 					<input type="hidden" name="classroom_id"
 								 value="{{ classroom.key.urlsafe() }}">
 					<input type="hidden" name="keystring">
-					<h4>Save Seating Arrangement</h4>
-					<label>Day<input name="day" type="text"></label>
+					<h4>Save This Seating Arrangement: Day {{ day }}</h4>
+					<input type="hidden" name="day" value="{{ day }}">
 					<input type="submit" value="Save" id="save">
 				</form>
 			{% endif %}
