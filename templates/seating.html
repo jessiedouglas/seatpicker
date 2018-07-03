@@ -31,41 +31,53 @@
 	{% endif %}
 
 	{% if classroom %}
-		<h1>Seating for Class {{ classroom.name }}</h1>
+		<h1>Generate Seating</h1>
+		<h2>{{ classroom.name }}</h2>
+		<a href="/classroom?id={{ classroom.key.urlsafe() }}">Manage Class</a>
 
-		{% if not day == None %}
-			<h1 id="day">
-				Day {{day}}
-			</h1>
-		{% endif %}
+		{% if students|length == 30 %}
+			<a href="/seating?classroom={{ classroom.key.urlsafe() }}&list=true">
+				View all saved seating arrangements
+			</a>
 
-		<section id="room" class="clearfix">
-			<!-- <div id="left"></div>
-			<div id="right"></div> -->
+			{% if not day == None %}
+				<h1 id="day">
+					Day {{day}}
+				</h1>
+			{% endif %}
 
-			{% for i in range(0, students|length, 6) %}
-			<div class="table clearfix container" name="{{ i / 6 }}">
-				{% for j in range(6) %}
-					<div class="student" id="{{ students[i + j].key.urlsafe() }}">
-						{{ students[i + j].name }}
-					</div>
+			<section id="room" class="clearfix">
+				{% for i in range(0, students|length, 6) %}
+				<div class="table clearfix container" name="{{ i / 6 }}">
+					{% for j in range(6) %}
+						<div class="student" id="{{ students[i + j].key.urlsafe() }}">
+							{{ students[i + j].name }}
+						</div>
+					{% endfor %}
+				</div>
 				{% endfor %}
-			</div>
-			{% endfor %}
-		</section>
+			</section>
 
-		<form method="get" action="/seating">
-			<input type="hidden" name="classroom" value="{{classroom.key.urlsafe()}}">
-			<input type="submit" value="Regenerate Seating">
-		</form>
-		<form method="post" action="/seating">
-			<input type="hidden" name="classroom_id"
-						 value="{{ classroom.key.urlsafe() }}">
-			<input type="hidden" name="keystring">
-			<h4>Save Seating Arrangement</h4>
-			<label>Day<input name="day" type="text"></label>
-			<input type="submit" value="Save" id="save">
-		</form>
+			<form method="get" action="/seating">
+				<input type="hidden" name="classroom" value="{{classroom.key.urlsafe()}}">
+				<input type="submit" value="Regenerate Seating">
+			</form>
+
+			{% if day == None %}
+				<form method="post" action="/seating">
+					<input type="hidden" name="classroom_id"
+								 value="{{ classroom.key.urlsafe() }}">
+					<input type="hidden" name="keystring">
+					<h4>Save Seating Arrangement</h4>
+					<label>Day<input name="day" type="text"></label>
+					<input type="submit" value="Save" id="save">
+				</form>
+			{% endif %}
+		{% else %}
+			<div class="error">
+				Error: Class has fewer than 30 students. Please add students.
+			</div>
+		{% endif %}
 	{% endif %}
 	<script src='/resources/scripts/dragula.min.js'></script>
 	<script src='/resources/scripts/seating.js'></script>

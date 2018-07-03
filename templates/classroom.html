@@ -38,6 +38,12 @@
 	{% if classroom %}
 		<h1>Class {{ classroom.name }}</h1>
 		<p id="classroom-id" hidden>{{ classroom.key.urlsafe() }}</p>
+		<a href="/seating?classroom={{ classroom.key.urlsafe() }}">
+			Generate Seating
+		</a>
+		<a href="/seating?classroom={{ classroom.key.urlsafe() }}&list=true">
+			See All Saved Seating Arrangements
+		</a>
 		<h2>Students</h2>
 		<section class="clearfix" id="students">
 			{% if students|length > 0 %}

@@ -31,6 +31,10 @@
 	{% endif %}
 
 	{% if classroom %}
+		<a href="/classroom?id={{ classroom.key.urlsafe() }}">Manage Class</a>
+		<a href="/seating?classroom={{ classroom.key.urlsafe() }}">
+			Generate Seating
+		</a>
 		{% for sa in seating_arrangements %}
 			<section id="room" class="clearfix">
 				<h1>Day {{sa.day}}</h1>
