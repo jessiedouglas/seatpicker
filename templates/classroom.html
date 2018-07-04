@@ -1,10 +1,5 @@
-<html>
-<header>
-	<title>Classroom</title>
-	<link href="/resources/css/classroom.css" rel="stylesheet" type="text/css">
-</header>
-<body>
-	{{ nav_bar }}
+<link href="/resources/css/classroom.css" rel="stylesheet" type="text/css">
+<section>
 	{% if not msg == None %}
 	<div>
 		{{msg}}
@@ -78,5 +73,5 @@
 	<script>
 		document.addEventListener('DOMContentLoaded', Student.main, false);
 	</script>
-</body>
+</section>
 </html>

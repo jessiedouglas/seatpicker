@@ -1,11 +1,6 @@
-<html>
-<heading>
-	<title>Seating</title>
-	<link href="/resources/css/dragula.min.css" rel="stylesheet" type="text/css">
-	<link href="/resources/css/seating.css" rel="stylesheet" type="text/css">
-</heading>
-<body>
-	{{ nav_bar }}
+<link href="/resources/css/dragula.min.css" rel="stylesheet" type="text/css">
+<link href="/resources/css/seating.css" rel="stylesheet" type="text/css">
+<section>
 	{% if not msg == None %}
 	<div>
 		{{msg}}
@@ -79,10 +74,9 @@
 			</div>
 		{% endif %}
 	{% endif %}
-	<script src='/resources/scripts/dragula.min.js'></script>
-	<script src='/resources/scripts/seating.js'></script>
+	<script defer src='/resources/scripts/dragula.min.js'></script>
+	<script defer src='/resources/scripts/seating.js'></script>
 	<script>
 		document.addEventListener('DOMContentLoaded', main, false);
 	</script>
-</body>
-</html>
+</section>

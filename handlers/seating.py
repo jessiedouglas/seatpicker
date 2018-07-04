@@ -24,7 +24,6 @@ class SeatingHandler(webapp2.RequestHandler):
         classrooms = sorted(classrooms, key=lambda c: c.name)
 
         vars_dict = {
-            "nav_bar": rendering_util.get_nav_bar(),
             "msg": msg,
             "classroom": c,
             "classrooms": classrooms,
@@ -33,18 +32,19 @@ class SeatingHandler(webapp2.RequestHandler):
             "is_saved": is_saved,
             "keystring": ','.join([s.key.urlsafe() for s in students]),
         }
-        self.response.out.write(template.render(vars_dict))
+        main_content = template.render(vars_dict)
+        self.response.out.write(rendering_util.render_page(main_content))
 
     def _render_all(self, c=None, seating_arrangements=[], msg=None):
         template = env.get_template('all_arrangements.html')
         vars_dict = {
-            "nav_bar": rendering_util.get_nav_bar(),
             "msg": msg,
             "classroom": c,
             "classrooms": self._get_classrooms(),
             "seating_arrangements": seating_arrangements,
         }
-        self.response.out.write(template.render(vars_dict))
+        main_content = template.render(vars_dict)
+        self.response.out.write(rendering_util.render_page(main_content))
 
     def get(self):
         current_user = users.get_current_user()
