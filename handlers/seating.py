@@ -113,6 +113,8 @@ class SeatingHandler(webapp2.RequestHandler):
             is_saved=True, c=c, students=students, msg=msg, day=arrangement.day)
 
     def _get_next_day(self, c):
+        if not c:
+            return None
         seating_arrangements = self._get_seating_arrangements(c)
         if len(seating_arrangements) == 0:
             return 1
