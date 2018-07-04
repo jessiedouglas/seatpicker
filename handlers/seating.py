@@ -76,8 +76,13 @@ class SeatingHandler(webapp2.RequestHandler):
             if c:
                 students = student.Student.query().filter(
                     student.Student.classroom==c.key).fetch()
-                students = seating_generator.SeatingGenerator(
-                    students).generate_seating()
+                if len(students) == 30:
+                    students = seating_generator.SeatingGenerator(
+                        students).generate_seating()
+                else:
+                    msg = ("Can't generate seating: "
+                           "expected 30 students, found %d" % len(students))
+                    logging.info(msg)
 
             self._render_one(c=c, students=students)
 
@@ -109,6 +114,8 @@ class SeatingHandler(webapp2.RequestHandler):
 
     def _get_next_day(self, c):
         seating_arrangements = self._get_seating_arrangements(c)
+        if len(seating_arrangements) == 0:
+            return 1
         return seating_arrangements[-1].day + 1
 
     def _get_seating_arrangements(self, c):
