@@ -1,44 +1,57 @@
 <link href="/resources/css/classroom.css" rel="stylesheet" type="text/css">
-<section>
+<section id="classrooms">
 	{% if not msg == None %}
 	<div>
 		{{msg}}
 	</div>
 	{% endif %}
 
-  {% if classrooms|length > 0 %}
-		<form method="get" action="/classroom">
-			<label>Select a Class
-				<select name="id">
-					<option value=""></option>
-					{% for classroom_select in classrooms %}
-						<option value="{{ classroom_select.key.urlsafe() }}">
-							{{ classroom_select.name }}
-						</option>
-					{% endfor %}
-				</select>
-			</label>
-			<button>Go!</button>
-	  </form>
-	{% endif %}
+	<div class="classroom-options">
+	  {% if classrooms|length > 0 %}
+			<form method="get" action="/classroom">
+				<label>Select a Class
+					<select name="id">
+						<option value=""></option>
+						{% for classroom_select in classrooms %}
+							<option value="{{ classroom_select.key.urlsafe() }}">
+								{{ classroom_select.name }}
+							</option>
+						{% endfor %}
+					</select>
+				</label>
+				<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+					Go!
+				</button>
+		  </form>
+		{% endif %}
 
-	<form method="post" action="/classroom">
-		<h3>Add a new classroom:</h3>
-		<label>Name
-			<input name="name" type="text">
-		</label>
-		<button>Create</button>
-  </form>
+		<form method="post" action="/classroom">
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				<input id="newClassroomName" class="mdl-textfield__input"
+						   name="name" type="text">
+				<label class="mdl-textfield__label" for="newClassroomName">
+					Add a new class...
+				</label>
+			</div>
+			<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+				Create
+			</button>
+	  </form>
+	</div>
 
 	{% if classroom %}
-		<h1>Class {{ classroom.name }}</h1>
 		<p id="classroom-id" hidden>{{ classroom.key.urlsafe() }}</p>
-		<a href="/seating?classroom={{ classroom.key.urlsafe() }}">
-			Generate Seating
-		</a>
-		<a href="/seating?classroom={{ classroom.key.urlsafe() }}&list=true">
-			See All Saved Seating Arrangements
-		</a>
+		<div class="classroom-heading">
+			<h1>Class {{ classroom.name }}</h1>
+			<a href="/seating?classroom={{ classroom.key.urlsafe() }}"
+				 class="mdl-button mdl-js-button mdl-button--accent">
+				Generate Seating
+			</a>
+			<a href="/seating?classroom={{ classroom.key.urlsafe() }}&list=true"
+				 class="mdl-button mdl-js-button mdl-button--accent">
+				See All Saved Seating Arrangements
+			</a>
+		</div>
 		<h2>Students</h2>
 		<section class="clearfix" id="students">
 			{% if students|length > 0 %}
@@ -46,7 +59,9 @@
 					<div class="student clearfix">
 						<p class="student-name name">{{ student.name }}</p>
 						<p class="student-id" hidden>{{ student.key.urlsafe() }}</p>
-						<button class="delete-button">Delete</button>
+						<button class="delete-button mdl-button mdl-js-button mdl-js-ripple-effect">
+							<i class="material-icons">delete</i>
+						</button>
 					</div>
 				{% endfor %}
 			{% else %}
@@ -54,19 +69,24 @@
 			{% endif %}
 		</section>
 
-
-		<h3>Add a Student</h3>
 		<form>
-			<label>Name
-				<input id="studentName" type="text">
-			</label>
-			<button id="addStudent">Submit</button>
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				<input id="studentName" class="mdl-textfield__input" type="text">
+				<label class="mdl-textfield__label" for="studentName">
+					Add a student...
+				</label>
+			</div>
+			<button id="addStudent" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+				Submit
+			</button>
 		</form>
 
 		<form method="post" action="/classroom">
 			<input type="hidden" name="_method" value="delete">
 			<input type="hidden" name="id" value="{{ classroom.key.urlsafe() }}">
-			<button>Delete classroom {{ classroom.name }}</button>
+			<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+				Delete {{ classroom.name }}
+			</button>
 		</form>
 	{% endif %}
 	<script src='/resources/scripts/students.js'></script>
@@ -74,4 +94,3 @@
 		document.addEventListener('DOMContentLoaded', Student.main, false);
 	</script>
 </section>
-</html>

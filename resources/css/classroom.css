@@ -4,6 +4,23 @@
 	clear: both;
 }
 
+#classrooms {
+  padding: 0 48px;
+}
+
+.classroom-options {
+	display: flex;
+	align-items: center;
+}
+
+.classroom-options > * {
+	padding-right: 50px;
+}
+
+.classroom-heading > h1 {
+	margin-bottom: 0;
+}
+
 .student {
 	float: left;
 	width: 25%;
@@ -13,10 +30,10 @@
 
 .student-name {
 	float:left;
+	margin: 8px 0;
 }
 
 .delete-button {
 	float: right;
-	margin-top: 15px;
-	margin-right: 20px;
+	margin-top: 2px;
 }

@@ -18,9 +18,10 @@ Student.main = function() {
   const students = document.querySelector('#students');
   if (students) {
     students.addEventListener('click', (event) => {
-      if (event.target.classList.contains('delete-button')) {
+      debugger;
+      if (event.target.parentElement.classList.contains('delete-button')) {
         event.preventDefault();
-        const parent = event.target.parentElement;
+        const parent = event.target.parentElement.parentElement;
         Student.deleteStudent_(
           Student.getStudentIdToDelete_(parent)).then(() => {
           parent.remove();
@@ -45,7 +46,10 @@ Student.saveStudent_ = function(name, classroom_id) {
 Student.appendStudent_ = function(student) {
   const studentContent = '<p class="student-name">' + student.name + '</p>' +
     '<p class="student-id" hidden>' + student.id + '</p>' +
-    '<button class="delete-button">Delete</button>';
+    '<button ' +
+        'class="delete-button mdl-button mdl-js-button mdl-js-ripple-effect">' +
+        '<i class="material-icons">delete</i>' +
+    '</button>';
   const studentEl = document.createElement('div');
   studentEl.innerHTML = studentContent;
   const students = document.getElementById('students');
