@@ -27,52 +27,72 @@
 
 	{% if classroom %}
 		<h1>Generate Seating</h1>
-		<h2>{{ classroom.name }}</h2>
-		<a href="/classroom?id={{ classroom.key.urlsafe() }}">Manage Class</a>
 
-		{% if students|length == 30 %}
-			<a href="/seating?classroom={{ classroom.key.urlsafe() }}&list=true">
-				View all saved seating arrangements
-			</a>
+		<section class="seating-main">
+			<div class="classroom-options">
+				<h2 class="classroom-name">
+					{{ classroom.name }}
+					{% if day and is_saved %}
+						: Day {{ day }}
+					{% endif %}
+				</h2>
+				<a href="/classroom?id={{ classroom.key.urlsafe() }}"
+					 class="mdl-button mdl-js-button mdl-button--accent">
+					 Manage Class
+				 </a>
 
-			{% if day and is_saved %}
-				<h1 id="day">
-					Day {{day}}
-				</h1>
-			{% endif %}
-
-			<section id="room" class="clearfix">
-				{% for i in range(0, students|length, 6) %}
-				<div class="table clearfix container" name="{{ i / 6 }}">
-					{% for j in range(6) %}
-						<div class="student" id="{{ students[i + j].key.urlsafe() }}">
-							{{ students[i + j].name }}
-						</div>
-					{% endfor %}
-				</div>
-				{% endfor %}
-			</section>
-
-			<form method="get" action="/seating">
-				<input type="hidden" name="classroom" value="{{classroom.key.urlsafe()}}">
-				<input type="submit" value="Regenerate Seating">
-			</form>
-
-			{% if day and not is_saved %}
-				<form method="post" action="/seating">
-					<input type="hidden" name="classroom_id"
-								 value="{{ classroom.key.urlsafe() }}">
-					<input type="hidden" name="keystring">
-					<h4>Save This Seating Arrangement: Day {{ day }}</h4>
-					<input type="hidden" name="day" value="{{ day }}">
-					<input type="submit" value="Save" id="save">
-				</form>
-			{% endif %}
-		{% else %}
-			<div class="error">
-				Error: Class has fewer than 30 students. Please add students.
+				{% if students|length == 30 %}
+					<a href="/seating?classroom={{ classroom.key.urlsafe() }}&list=true"
+					   class="mdl-button mdl-js-button mdl-button--accent">
+						View all saved seating arrangements
+					</a>
+				{% endif %}
 			</div>
-		{% endif %}
+
+			<div class="seating">
+				{% if students|length == 30 %}
+					<div>
+						<section id="room" class="clearfix">
+							{% for i in range(0, students|length, 6) %}
+							<div class="table clearfix container" name="{{ i / 6 }}">
+								{% for j in range(6) %}
+									<div class="student" id="{{ students[i + j].key.urlsafe() }}">
+										{{ students[i + j].name }}
+									</div>
+								{% endfor %}
+							</div>
+							{% endfor %}
+						</section>
+					</div>
+
+					<div class="seating-options">
+						<form method="get" action="/seating">
+							<input type="hidden" name="classroom" value="{{classroom.key.urlsafe()}}">
+							<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+								Regenerate Seating
+							</button>
+						</form>
+
+						{% if day and not is_saved %}
+							<form method="post" action="/seating">
+								<input type="hidden" name="classroom_id"
+											 value="{{ classroom.key.urlsafe() }}">
+								<input type="hidden" name="keystring">
+								<input type="hidden" name="day" value="{{ day }}">
+								<button id="save"
+											  class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+										Save this Arrangement: Day {{ day }}
+								</button>
+							</form>
+						{% endif %}
+					</div>
+				{% else %}
+					<div class="error">
+						Error: Class has fewer than 30 students. Please add students.
+					</div>
+				{% endif %}
+			</div>
+		</section>
 	{% endif %}
 	<script src='/resources/scripts/dragula.min.js'></script>
 	<script src='/resources/scripts/seating.js'></script>

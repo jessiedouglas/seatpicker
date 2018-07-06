@@ -4,6 +4,29 @@
 	clear: both;
 }
 
+.page-content {
+	padding: 0 48px;
+}
+
+.seating-main {
+	display: flex;
+	overflow: scroll;
+}
+
+.classroom-name {
+	margin-bottom: 0;
+}
+
+.classroom-options > a {
+	display: block;
+	text-align: left;
+}
+
+.seating {
+	display: flex;
+	margin-top: 48px;
+}
+
 .table {
 	margin-left: 50px;
 	margin-bottom: 50px;

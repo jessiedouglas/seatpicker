@@ -27,5 +27,5 @@ function saveArrangement(e) {
 	}
 	var keyStringEl = document.getElementsByName("keystring")[0];
 	keyStringEl.value = keys.join(",");
-	e.target.parentElement.submit();
+	e.target.parentElement.parentElement.submit();
 }
