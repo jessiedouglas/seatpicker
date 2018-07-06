@@ -10,18 +10,28 @@
 
 	{% if classrooms|length > 0 %}
 		<form method="get" action="/seating">
-			<input type="hidden" name="list" value="true"
-			<label>Select a Class
-				<select name="classroom">
-					<option value=""></option>
+			<input type="hidden" name="list" value="true">
+			<div class="mdl-textfield mdl-js-textfield getmdl-select">
+				<input type="text" value="" class="mdl-textfield__input" id="classroom" readonly>
+				<input type="hidden" name="classroom" value="">
+				<i class="mdl-icon-toggle__label material-icons">
+					keyboard_arrow_down
+				</i>
+				<label for="classroom" class="mdl-textfield__label">
+					Select a class...
+				</label>
+				<ul for="classroom" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
 					{% for classroom_select in classrooms %}
-						<option value="{{ classroom_select.key.urlsafe() }}">
-							{{ classroom_select.name }}
-						</option>
+						<li class="mdl-menu__item"
+								data-val="{{ classroom_select.key.urlsafe() }}">
+								{{ classroom_select.name }}
+						</li>
 					{% endfor %}
-				</select>
-			</label>
-			<button>Go!</button>
+				</ul>
+			</div>
+			<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+				Go!
+			</button>
 	  </form>
 	{% else %}
 		<div>You must create a classroom before you can set up seating!</div>
