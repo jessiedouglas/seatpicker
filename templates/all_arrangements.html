@@ -1,5 +1,6 @@
 <link href="/resources/css/all_seating.css" rel="stylesheet" type="text/css">
-<section>
+<link href="/resources/css/seating_single_room.css" rel="stylesheet" type="text/css">
+<section class="page-content">
 	{{ nav_bar }}
 	{% if not msg == None %}
 	<div>
@@ -27,27 +28,34 @@
 	{% endif %}
 
 	{% if classroom %}
-		<h1>All Seating</h1>
-		<h2>{{ classroom.name }}</h2>
-		<a href="/classroom?id={{ classroom.key.urlsafe() }}">Manage Class</a>
-		<a href="/seating?classroom={{ classroom.key.urlsafe() }}">
+		<h1>All Seating: {{ classroom.name }}</h1>
+		<a href="/classroom?id={{ classroom.key.urlsafe() }}"
+		   class="mdl-button mdl-js-button mdl-button--accent">
+			 Manage Class
+		</a>
+		<a href="/seating?classroom={{ classroom.key.urlsafe() }}"
+		   class="mdl-button mdl-js-button mdl-button--accent">
 			Generate Seating
 		</a>
-		{% for sa in seating_arrangements %}
-			<section id="room" class="clearfix">
-				<h1>Day {{sa.day}}</h1>
-				{% for i in range(0, sa.students|length, 6) %}
-				{% if i == 24 %}
-				<div class="table clearfix" id="backtable">
-				{% else %}
-				<div class="table clearfix">
-				{% endif %}
-					{% for j in range(6) %}
-					<div class="student">{{ sa.students[i + j].get().name }}</div>
-					{% endfor %}
+		<div class="all-arrangements">
+			{% for sa in seating_arrangements %}
+				<div>
+					<h2>Day {{sa.day}}</h2>
+					<section id="room" class="clearfix">
+						{% for i in range(0, sa.students|length, 6) %}
+							{% if i == 24 %}
+							<div class="table clearfix" id="backtable">
+							{% else %}
+							<div class="table clearfix">
+							{% endif %}
+								{% for j in range(6) %}
+								<div class="student">{{ sa.students[i + j].get().name }}</div>
+								{% endfor %}
+							</div>
+							{% endfor %}
+						</section>
 				</div>
-				{% endfor %}
-			</section>
-		{% endfor %}
+			{% endfor %}
+		</div>
 	{% endif %}
 </section>

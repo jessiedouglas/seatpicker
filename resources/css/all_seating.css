@@ -4,16 +4,20 @@
 	clear: both;
 }
 
-.table {
-	float: left;
-	margin-left: 50px;
-	margin-bottom: 50px;
+.page-content {
+	padding: 0 48px;
 }
 
-.student {
-	border: 2px solid black;
-	float: left;
-	width: 100px;
-	text-align: center;
-	padding: 10px 0px;
+h1 {
+	margin-bottom: 0;
+}
+
+.all-arrangements {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.all-arrangements > * {
+	width: 40%;
+	margin-right: 50px;
 }

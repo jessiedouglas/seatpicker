@@ -1,0 +1,21 @@
+.table {
+	margin-left: 50px;
+	margin-bottom: 50px;
+	min-height: 30px;
+	border: 1px dashed black;
+	width: 208px;
+}
+
+.student {
+	border: 2px solid black;
+	float: left;
+	width: 100px;
+	text-align: center;
+	padding: 10px 0px;
+}
+
+#room {
+	display: flex;
+	flex-wrap: wrap;
+	width: 600px;
+}

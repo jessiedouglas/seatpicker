@@ -27,6 +27,13 @@
 	margin-top: 48px;
 }
 
+.error {
+	border: 2px solid red;
+	padding: 8px;
+	margin: 0 50px;
+	height: fit-content;
+}
+
 .table {
 	margin-left: 50px;
 	margin-bottom: 50px;
