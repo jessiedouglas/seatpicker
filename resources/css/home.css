@@ -1,0 +1,10 @@
+#home {
+  width: fit-content;
+  height: 100%;
+  margin: 0 auto;
+}
+
+#home > h1 {
+  font-size: 90px;
+  padding-top: 30%
+}
