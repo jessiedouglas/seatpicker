@@ -1,0 +1,9 @@
+.sg-nav-right {
+  display: flex;
+}
+
+.sg-nav-right > * {
+  margin: 0 12px;
+  text-align: center;
+  padding: 8px 0;
+}

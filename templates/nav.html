@@ -1,16 +1,22 @@
-<nav>
-  {% if user %}
-    <div>
-      <a href="/">Home</a>
-      <a href="/seating">Seating</a>
-      <a href="/seating?list=true">See All Seating Arrangements</a>
-      <a href="/classroom">Manage Classes and Students</a>
-    </div>
-    <div>
-      <p>Welcome, {{ user }}!</p>
-      <a href="{{ logout_url }}">Sign out</a>
-    </div>
-  {% else %}
-    <a href="{{ login_url }}">Sign In</a>
-  {% endif %}
-</nav>
+<link href="/resources/css/nav.css" rel="stylesheet">
+<header class="mdl-layout__header">
+  <div class="mdl-layout__header-row">
+    {% if user %}
+      <nav class="mdl-navigation sg-nav-left">
+        <a class="mdl-navigation__link" href="/">Home</a>
+        <a class="mdl-navigation__link" href="/seating">Seating</a>
+        <a class="mdl-navigation__link" href="/classroom">
+          Classes and Students
+        </a>
+      </nav>
+      <div class="mdl-layout-spacer"></div>
+      <div class="sg-nav-right">
+        <p>Welcome, <br>{{ user }}!</p>
+        <a class="mdl-navigation__link" href="{{ logout_url }}">Sign out</a>
+      </div>
+    {% else %}
+      <div class="mdl-layout-spacer"></div>
+      <a class="mdl-navigation__link" href="{{ login_url }}">Sign In</a>
+    {% endif %}
+  </div>
+</header>
