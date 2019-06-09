@@ -36,7 +36,7 @@
 		<div>You must create a classroom before you can set up seating!</div>
 	{% endif %}
 
-	{% if classroom %}
+	{% if classroom and students|length > 0 %}
 		<h1>Generate Seating</h1>
 
 		<section class="seating-main">
@@ -50,61 +50,63 @@
 				<a href="/classroom?id={{ classroom.key.urlsafe() }}"
 					 class="mdl-button mdl-js-button mdl-button--accent">
 					 Manage Class
-				 </a>
+				</a>
 
-				{% if students|length == 30 %}
-					<a href="/seating?classroom={{ classroom.key.urlsafe() }}&list=true"
-					   class="mdl-button mdl-js-button mdl-button--accent">
-						View all saved seating arrangements
-					</a>
-				{% endif %}
+				<a href="/seating?classroom={{ classroom.key.urlsafe() }}&list=true"
+				   class="mdl-button mdl-js-button mdl-button--accent">
+					View all saved seating arrangements
+				</a>
 			</div>
 
-			<div class="seating">
-				{% if students|length == 30 %}
-					<div>
-						<section id="room" class="clearfix">
-							{% for i in range(0, students|length, 6) %}
-							<div class="table clearfix container" name="{{ i / 6 }}">
-								{% for j in range(6) %}
-									<div class="student" id="{{ students[i + j].key.urlsafe() }}">
-										{{ students[i + j].name }}
-									</div>
-								{% endfor %}
+		<div class="seating">
+				<div>
+					<section id="room" class="clearfix">
+						{% for student in students %}
+							<div class="student" id="{{ student.key.urlsafe() }}">
+								{{ student.name }}
 							</div>
-							{% endfor %}
-						</section>
-					</div>
+						{% endfor %}
+					</section>
+				</div>
 
-					<div class="seating-options">
-						<form method="get" action="/seating">
-							<input type="hidden" name="classroom" value="{{classroom.key.urlsafe()}}">
-							<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-								Regenerate Seating
+				<div class="seating-options">
+					<form class="seating-layout">
+						<label>Table Size:
+							<select class="seating-layout-select">
+								{% for i in range(2, students|length + 1, 2) %}
+									<option value="{{i}}" selected="{{ i == 6 }}">{{i}}</option>
+								{% endfor %}
+							</select>
+						</label>
+					</form>
+
+					<form method="get" action="/seating">
+						<input type="hidden" name="classroom" value="{{classroom.key.urlsafe()}}">
+						<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+							Regenerate Seating
+						</button>
+					</form>
+
+					{% if day and not is_saved %}
+						<form method="post" action="/seating">
+							<input type="hidden" name="classroom_id"
+										 value="{{ classroom.key.urlsafe() }}">
+							<input type="hidden" name="keystring">
+							<input type="hidden" name="day" value="{{ day }}">
+							<button id="save"
+										  class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+									Save this Arrangement: Day {{ day }}
 							</button>
 						</form>
-
-						{% if day and not is_saved %}
-							<form method="post" action="/seating">
-								<input type="hidden" name="classroom_id"
-											 value="{{ classroom.key.urlsafe() }}">
-								<input type="hidden" name="keystring">
-								<input type="hidden" name="day" value="{{ day }}">
-								<button id="save"
-											  class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
-										Save this Arrangement: Day {{ day }}
-								</button>
-							</form>
-						{% endif %}
-					</div>
-				{% else %}
-					<div class="error">
-						Error: Class has fewer than 30 students. Please add students.
-					</div>
-				{% endif %}
-			</div>
-		</section>
-	{% endif %}
+					{% endif %}
+				</div>
+			{% else %}
+				<div class="error">
+					Error: Class has no students. Please add students.
+				</div>
+			{% endif %}
+		</div>
+	</section>
 	<script src='/resources/scripts/dragula.min.js'></script>
 	<script src='/resources/scripts/seating.js'></script>
 	<script>
