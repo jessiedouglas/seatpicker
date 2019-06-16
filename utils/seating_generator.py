@@ -162,6 +162,8 @@ class SeatingGenerator(object):
     def _handle_remaining_unpaired(self):
         # Randomly pair remaining unpaired students
         unpaired = self._get_unpaired()
+        if len(unpaired) == 0:
+            return
         random.shuffle(unpaired)
         # Need len(unpaired) - 1 so that we don't try to pair an odd number of
         # students
