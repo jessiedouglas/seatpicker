@@ -60,13 +60,13 @@
 
 		<div class="seating">
 				<div>
-					<section id="room" class="clearfix">
+					<section id="room" class="room">
 						{% for table in students_by_table %}
 							<div class="table">
 								{% for student in table %}
 									{% if student %}
 										<div class="student" id="{{ student.key.urlsafe() }}">
-											{{ student.name }}
+											<span class="student-name">{{ student.name }}</span>
 										</div>
 									{% else %}
 										<div class="student empty"></div>

@@ -1,4 +1,10 @@
+/* Styling for anywhere a room of students is rendered. */
+
 .table {
+	display: grid;
+	grid-template-columns: 100%;
+	grid-auto-rows: 50px;
+	grid-row-gap: 3px;
 	margin-left: 50px;
 	margin-bottom: 50px;
 	min-height: 30px;
@@ -6,15 +12,25 @@
 	width: 208px;
 }
 
-.student {
-	border: 2px solid black;
-	float: left;
-	width: 100px;
-	text-align: center;
-	padding: 10px 0px;
+.pair {
+	display: grid;
+	grid-template-columns: 50% 50%;
+	grid-template-rows: 100%;
 }
 
-#room {
+.student {
+	border: 1px solid black;
+	height: 95%;
+	display: grid;
+	align-items: center;
+}
+
+.student-name {
+	text-align: center;
+	height: fit-content;
+}
+
+.room {
 	display: flex;
 	flex-wrap: wrap;
 	width: 600px;

@@ -1,4 +1,4 @@
-<link href="/resources/css/all_seating.css" rel="stylesheet" type="text/css">
+<link href="/resources/css/all_arrangements.css" rel="stylesheet" type="text/css">
 <link href="/resources/css/seating_single_room.css" rel="stylesheet" type="text/css">
 <section class="page-content">
 	{{ nav_bar }}
@@ -50,23 +50,27 @@
 			{% for sa in seating_arrangements %}
 				<div>
 					<h2>Day {{sa.day}}</h2>
-					<section id="room" class="clearfix">
+					<section class="room">
 						{% set tables = arrangement_key_to_tables.get(sa.key) %}
 						{% for table in tables %}
 							{% if table.key == tables[-1].key %}
-								<div class="table clearfix" id="backtable">
+								<div class="table" id="backtable">
 							{% else %}
-								<div class="table clearfix">
+								<div class="table">
 							{% endif %}
 							{% for i in range(0, table|length, 2) %}
 								<div class="pair">
 									{% if table[i] %}
-										<div class="student">{{ table[i].name }}</div>
+										<div class="student">
+											<span class="student-name">{{ table[i].name }}</span>
+										</div>
 									{% else %}
 										<div class="student empty"></div>
 									{% endif %}
 									{% if i + 1 < table|length and table[i + 1] %}
-										<div class="student">{{ table[i + 1].name }}</div>
+										<div class="student">
+											<span class="student-name">{{ table[i + 1].name }}</span>
+										</div>
 									{% else %}
 										<div class="student empty"></div>
 									{% endif %}
