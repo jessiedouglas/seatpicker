@@ -57,6 +57,14 @@ class AllSeatingHandler(webapp2.RequestHandler):
 
     def _get_tables_and_students(self, arrangement):
         '''Retrieves all tables and students for a given arrangement.'''
+        if arrangement.tables:
+            return self._seat_students(arrangement)
+        else:
+            return self._seat_students_deprecated(arrangement)
+
+    def _seat_students(self, arrangement):
+        '''Retrieves students and tables and returns a list of students by
+        table.'''
         tables = ndb.get_multi(arrangement.tables)
         all_students = ndb.get_multi([s for t in tables for s in t.students])
         keys_to_students = {s.key:s for s in all_students}
@@ -64,3 +72,20 @@ class AllSeatingHandler(webapp2.RequestHandler):
                 keys_to_students.get(key) for key in t.students
             ] for t in tables
         ]
+
+    def _seat_students_deprecated(self, arrangement):
+        '''Retrieves all students and returns a list of lists of students, each
+        of which represents a table of students. This method supports
+        arrangement data from before tables.'''
+        students = ndb.get_multi(arrangement.students)
+        tables = []
+        current_table = []
+        # We used to always assume that there were 6 students per table, and we
+        # required each classroom to have exactly 30 students
+        for i, student in enumerate(students):
+            current_table.append(student)
+            if i % 6 == 5:
+                tables.append(current_table)
+                current_table = []
+
+        return tables
