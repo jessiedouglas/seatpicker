@@ -51,18 +51,30 @@
 				<div>
 					<h2>Day {{sa.day}}</h2>
 					<section id="room" class="clearfix">
-						{% for i in range(0, sa.students|length, 6) %}
-							{% if i == 24 %}
-							<div class="table clearfix" id="backtable">
+						{% set tables = arrangement_key_to_tables.get(sa.key) %}
+						{% for table in tables %}
+							{% if table.key == tables[-1].key %}
+								<div class="table clearfix" id="backtable">
 							{% else %}
-							<div class="table clearfix">
+								<div class="table clearfix">
 							{% endif %}
-								{% for j in range(6) %}
-								<div class="student">{{ sa.students[i + j].get().name }}</div>
-								{% endfor %}
-							</div>
+							{% for i in range(0, table|length, 2) %}
+								<div class="pair">
+									{% if table[i] %}
+										<div class="student">{{ table[i].name }}</div>
+									{% else %}
+										<div class="student empty"></div>
+									{% endif %}
+									{% if i + 1 < table|length and table[i + 1] %}
+										<div class="student">{{ table[i + 1].name }}</div>
+									{% else %}
+										<div class="student empty"></div>
+									{% endif %}
+								</div>
 							{% endfor %}
-						</section>
+							</div>
+						{% endfor %}
+					</section>
 				</div>
 			{% endfor %}
 		</div>
