@@ -79,19 +79,28 @@
 
 				<div class="seating-options">
 					{% if not is_saved %}
-						<form class="seating-layout">
-							<label>Table Size:
-								<select class="table-size-select">
-									{% set max_size = ([7, (num_students / 2)|int + 1]|sort)[-1] %}
-									{% for i in range(2, max_size, 2) %}
-										{% if i == default_table_size %}
-											<option value="{{i}}" selected>{{i}}</option>
-										{% else %}
-											<option value="{{i}}">{{i}}</option>
-										{% endif %}
-									{% endfor %}
-								</select>
+						<form class="seating-layout mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select">
+							<input type="text" value=""
+										 class="table-size-select mdl-textfield__input"
+										 id="table_size" readonly>
+			        <input type="hidden" value="" name="table_size">
+							<label for="table_size" class="mdl-textfield__label">
+								Table Size
 							</label>
+							<ul for="table_size" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+								{% set max_size = ([7, (num_students / 2)|int + 1]|sort)[-1] %}
+								{% for i in range(2, max_size, 2) %}
+									{% if i == default_table_size %}
+										<li class="mdl-menu__item"
+												data-val="{{i}}"
+												data-selected="true">
+												{{i}}
+										</li>
+									{% else %}
+										<li class="mdl-menu__item" data-val="{{i}}">{{i}}</li>
+									{% endif %}
+								{% endfor %}
+							</ul>
 						</form>
 					{% endif %}
 

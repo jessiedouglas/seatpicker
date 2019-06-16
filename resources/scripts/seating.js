@@ -1,3 +1,8 @@
+const SeatingConstants = {
+	dragContainers: [],
+	initializing: true,
+};
+
 const main = () => {
 	seatStudentsInitial();
 
@@ -7,16 +12,21 @@ const main = () => {
 	const saveButton = document.getElementById("save");
 	saveButton.addEventListener("click", saveArrangement);
 
-	const c = document.getElementsByClassName("container");
-	const containers = [];
-	for (let i=0; i<c.length; i++) {
-		containers.push(c[i]);
+	const dragContainers = Array.from(
+		document.getElementsByClassName("container"));
+	// Create some extra potential dragula containers in case we need some extras
+	// during reseating.
+	const initialNumContainers = dragContainers.length;
+	for (let i = 0; i < initialNumContainers; i++) {
+		dragContainers.push(createPairElement());
 	}
 
-	dragula(containers, {
+	dragula(dragContainers, {
 	  direction: 'horizontal',
 	  revertOnSpill: true,
 	});
+	SeatingConstants.dragContainers = dragContainers;
+	SeatingConstants.initializing = false;
 }
 
 const seatStudentsInitial = () => {
@@ -63,7 +73,7 @@ const reseatStudents = (tableSize) => {
 	for (let i = 0; i < numTables; i++) {
 		table = createTableElement();
 		for (let j = 0; j < tableSize; j += 2) {
-			pair = createPairElement();
+			pair = getEmptyPairElement();
 			const nextStudentIndex = tableSize * i + j;
 			const student1 = nextStudentIndex < studentEls.length ?
 					studentEls[nextStudentIndex] : createEmptyStudentElement();
@@ -90,10 +100,23 @@ const createTableElement = () => {
 }
 
 const createPairElement = () => {
+	if (!SeatingConstants.initializing) {
+		throw new Error(
+			'Error: Tried to create a new pair element after dragula done ' +
+			'initializing. Use getEmptyPairElement instead.');
+	}
 	const pair = document.createElement("div");
 	pair.classList.add("pair");
 	pair.classList.add("container");
 	return pair;
+}
+
+const getEmptyPairElement = () => {
+	for (let pair of SeatingConstants.dragContainers) {
+		if (pair.innerHTML === "" || pair.innerHTML == null) {
+			return pair;
+		}
+	}
 }
 
 const createEmptyStudentElement = () => {
@@ -120,6 +143,9 @@ const resetTableSizeInForm = (tableSize) => {
 const clearRoom = () => {
 	const room = document.getElementById("room");
 	room.innerHTML = "";
+	for (let pair of SeatingConstants.dragContainers) {
+		pair.innerHTML = "";
+	}
 }
 
 const getTableSize = () => {
