@@ -16,6 +16,7 @@
 #
 import webapp2
 
+from handlers import all_seating
 from handlers import classrooms
 from handlers import home
 from handlers import students
@@ -25,5 +26,6 @@ app = webapp2.WSGIApplication([
     ('/', home.HomeHandler),
     ('/classroom', classrooms.ClassroomHandler),
     ('/seating', seating.SeatingHandler),
-    ('/student', students.StudentHandler)
+    ('/student', students.StudentHandler),
+    ('/allseating', all_seating.AllSeatingHandler)
 ], debug=True)

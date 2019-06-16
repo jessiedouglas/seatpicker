@@ -12,6 +12,7 @@ from models import seating_arrangement
 from models import table
 from utils import rendering_util
 from utils import seating_generator
+from utils import seating_util
 
 env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
 
@@ -21,11 +22,11 @@ DEFAULT_TABLE_SIZE = 6
 class SeatingHandler(webapp2.RequestHandler):
     UNOWNED_RESOURCE_ERROR = 'Sorry, the requested classroom does not belong to you.'
 
-    def _render_one(self, is_saved=False, c=None, students_by_table=[],
+    def _render(self, is_saved=False, c=None, students_by_table=[],
             msg=None, day=None, default_table_size=DEFAULT_TABLE_SIZE):
         template = env.get_template('seating.html')
 
-        classrooms = self._get_classrooms()
+        classrooms = seating_util.get_classrooms()
         classrooms = sorted(classrooms, key=lambda c: c.name)
 
         vars_dict = {
@@ -46,17 +47,6 @@ class SeatingHandler(webapp2.RequestHandler):
         main_content = template.render(vars_dict)
         self.response.out.write(rendering_util.render_page(main_content))
 
-    def _render_all(self, c=None, seating_arrangements=[], msg=None):
-        template = env.get_template('all_arrangements.html')
-        vars_dict = {
-            "msg": msg,
-            "classroom": c,
-            "classrooms": self._get_classrooms(),
-            "seating_arrangements": seating_arrangements,
-        }
-        main_content = template.render(vars_dict)
-        self.response.out.write(rendering_util.render_page(main_content))
-
     def get(self):
         current_user = users.get_current_user()
         if not current_user:
@@ -69,37 +59,26 @@ class SeatingHandler(webapp2.RequestHandler):
             key = ndb.Key(urlsafe=urlsafe)
             c = key.get()
 
-        if self.request.get("list") == "true":
-            seating_arrangements = []
+        if c and c.user_id != current_user.user_id():
+            self._render(msg=UNOWNED_RESOURCE_ERROR)
 
-            if c and c.user_id != current_user.user_id():
-                self._render_all(msg=UNOWNED_RESOURCE_ERROR)
+        table_size = int(self.request.get(
+            'table_size', default_value=DEFAULT_TABLE_SIZE))
 
-            if c:
-                seating_arrangements = self._get_seating_arrangements(c)
+        students = []
+        if c:
+            students = student.Student.query().filter(
+                student.Student.classroom==c.key).fetch()
+            if len(students) > 0:
+                students = seating_generator.SeatingGenerator(
+                    students).generate_seating()
+            else:
+                msg = ("Can't generate seating: "
+                       "expected students, found none")
+                logging.info(msg)
 
-            self._render_all(c=c, seating_arrangements=seating_arrangements)
-        else:
-            if c and c.user_id != current_user.user_id():
-                self._render_one(msg=UNOWNED_RESOURCE_ERROR)
-
-            table_size = int(self.request.get(
-                'table_size', default_value=DEFAULT_TABLE_SIZE))
-
-            students = []
-            if c:
-                students = student.Student.query().filter(
-                    student.Student.classroom==c.key).fetch()
-                if len(students) > 0:
-                    students = seating_generator.SeatingGenerator(
-                        students).generate_seating()
-                else:
-                    msg = ("Can't generate seating: "
-                           "expected students, found none")
-                    logging.info(msg)
-
-            self._render_one(c=c, default_table_size=table_size,
-                    students_by_table=self._seat_students(students, table_size))
+        self._render(c=c, default_table_size=table_size,
+                students_by_table=self._seat_students(students, table_size))
 
     def post(self):
         if not users.get_current_user():
@@ -120,37 +99,24 @@ class SeatingHandler(webapp2.RequestHandler):
         except Exception as e:
             msg = "Error... %s" % e
             logging.info(msg)
-            self._render_one(c=c, students_by_table=students_by_table, msg=msg,
+            self._render(c=c, students_by_table=students_by_table, msg=msg,
                              default_table_size=table_size)
             return
 
         msg = "Seating arrangement saved!"
         logging.info(msg)
 
-        self._render_one(is_saved=True, c=c,
+        self._render(is_saved=True, c=c,
                          students_by_table=students_by_table, msg=msg,
                          day=arrangement.day, default_table_size=table_size)
 
     def _get_next_day(self, c):
         if not c:
             return None
-        seating_arrangements = self._get_seating_arrangements(c)
+        seating_arrangements = seating_util.get_seating_arrangements(c)
         if len(seating_arrangements) == 0:
             return 1
         return seating_arrangements[-1].day + 1
-
-    def _get_seating_arrangements(self, c):
-        query = seating_arrangement.SeatingArrangement.query()
-        filtered = query.filter(
-                seating_arrangement.SeatingArrangement.classroom==c.key)
-        seating_arrangements = filtered.order(
-            seating_arrangement.SeatingArrangement.day).fetch()
-        return seating_arrangements
-
-    def _get_classrooms(self):
-        return classroom.Classroom.query().filter(
-            classroom.Classroom.user_id==users.get_current_user().user_id()
-        ).fetch()
 
     def _get_num_students(self, students_by_table):
         '''Returns the sum of all non-None students in all tables'''

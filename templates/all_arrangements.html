@@ -9,8 +9,7 @@
 	{% endif %}
 
 	{% if classrooms|length > 0 %}
-		<form method="get" action="/seating">
-			<input type="hidden" name="list" value="true">
+		<form method="get" action="/allseating">
 			<div class="mdl-textfield mdl-js-textfield getmdl-select">
 				<input type="text" value="" class="mdl-textfield__input" id="classroom" readonly>
 				<input type="hidden" name="classroom" value="">
