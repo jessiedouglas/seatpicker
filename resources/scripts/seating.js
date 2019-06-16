@@ -1,8 +1,7 @@
 const main = () => {
-	const defaultTableSize = 6;
-	seatStudents(defaultTableSize);
+	seatStudentsInitial();
 
-	const layoutDropdown = document.querySelector(".seating-layout-select");
+	const layoutDropdown = document.querySelector(".table-size-select");
 	layoutDropdown.addEventListener("change", rearrangeTables);
 
 	const saveButton = document.getElementById("save");
@@ -20,12 +19,45 @@ const main = () => {
 	});
 }
 
-const seatStudents = (tableSize) => {
-	const studentEls = getStudentElements();
-	console.log(studentEls);
-
+const seatStudentsInitial = () => {
+	const tableSize = getTableSize();
+	const studentsByTable = [];
+	for (let table of document.querySelectorAll("#room .table")) {
+		const students = Array.from(table.children);
+		studentsByTable.push(students);
+	}
+	clearRoom();
 	const room = document.getElementById("room");
-	room.innerHTML = "";
+	let table, tableEl, pair;
+	for (let i = 0; i < studentsByTable.length; i++) {
+		tableEl = createTableElement();
+		table = studentsByTable[i];
+		for (let j = 0; j < table.length; j += 2) {
+			pair = createPairElement();
+			pair.appendChild(table[j]);
+			pair.appendChild(j + 1 < table.length ? table[j + 1] : createEmptyStudentElement());
+			tableEl.appendChild(pair);
+		}
+		// Fill out the rest of the table with empty seats
+		if (tableEl.children.length < tableSize / 2) {
+			let difference = (tableSize / 2) - tableEl.children.length;
+			while (difference > 0) {
+				pair = createPairElement();
+				pair.appendChild(createEmptyStudentElement());
+				pair.appendChild(createEmptyStudentElement());
+				tableEl.appendChild(pair);
+				difference -= 2;
+			}
+		}
+		room.appendChild(tableEl);
+	}
+}
+
+const reseatStudents = (tableSize) => {
+	const studentEls = getStudentElements();
+
+	clearRoom();
+	const room = document.getElementById("room");
 	const numTables = Math.ceil(studentEls.length / tableSize);
 	let table, pair;
 	for (let i = 0; i < numTables; i++) {
@@ -34,14 +66,14 @@ const seatStudents = (tableSize) => {
 			pair = createPairElement();
 			const nextStudentIndex = tableSize * i + j;
 			const student1 = nextStudentIndex < studentEls.length ?
-					studentEls[nextStudentIndex] : createStudentElement();
+					studentEls[nextStudentIndex] : createEmptyStudentElement();
 			const student2 = nextStudentIndex + 1 < studentEls.length ?
-					studentEls[nextStudentIndex + 1] : createStudentElement();
-			pair.append(student1);
-			pair.append(student2);
-			table.append(pair);
+					studentEls[nextStudentIndex + 1] : createEmptyStudentElement();
+			pair.appendChild(student1);
+			pair.appendChild(student2);
+			table.appendChild(pair);
 		}
-		room.append(table);
+		room.appendChild(table);
 	}
 }
 
@@ -64,35 +96,58 @@ const createPairElement = () => {
 	return pair;
 }
 
-const createStudentElement = () => {
+const createEmptyStudentElement = () => {
 	const student = document.createElement("div");
 	student.classList.add("student");
+	student.classList.add("empty");
 	return student;
 }
 
 const rearrangeTables = (e) => {
 	const tableSize = +e.target.value;
-	console.log(tableSize);
 	if (tableSize === 0 || isNaN(tableSize)) {
 		return;
 	}
-	seatStudents(tableSize);
+	resetTableSizeInForm(tableSize);
+	reseatStudents(tableSize);
+}
+
+const resetTableSizeInForm = (tableSize) => {
+	const inputs = document.getElementsByName("table_size");
+	[].forEach.call(inputs, (input) => input.value = tableSize);
+}
+
+const clearRoom = () => {
+	const room = document.getElementById("room");
+	room.innerHTML = "";
+}
+
+const getTableSize = () => {
+	return +document.getElementsByName("table_size")[0].value;
 }
 
 const saveArrangement = (e) => {
 	e.preventDefault();
-	let elName, table, students;
-	const keys = [];
-	for (let i=0; i<5; i++) {
-		elName = i.toString() + ".0";
-		table = document.getElementsByName(elName)[0];
-		students = table.children;
-		for (const j=0; j<students.length; j++) {
-			keys.push(students[j].id);
+	const tables = Array.from(document.getElementsByClassName("table"));
+	const tableSize = getTableSize();
+	const keysByTable = [];
+	let keys;
+	for (let table of tables) {
+		keys = [];
+		students = Array.from(table.getElementsByClassName("student"));
+		if (students.length !== tableSize) {
+			alert('You have a table with the wrong number of students. Please ' +
+						'readjust and try again.');
+			return;
 		}
+		students.forEach((student) => {
+			keys.push(student.id ? student.id : "");
+		});
+		keysByTable.push(keys);
 	}
 	const keyStringEl = document.getElementsByName("keystring")[0];
-	keyStringEl.value = keys.join(",");
+	// [["a", "b"], ["c", "d"]] --> "a,b;c,d"
+	keyStringEl.value = keysByTable.map(keys => keys.join(",")).join(";");
 
 	e.target.parentElement.parentElement.submit();
 }

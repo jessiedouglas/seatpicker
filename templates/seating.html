@@ -36,7 +36,7 @@
 		<div>You must create a classroom before you can set up seating!</div>
 	{% endif %}
 
-	{% if classroom and students|length > 0 %}
+	{% if classroom and num_students > 0 %}
 		<h1>Generate Seating</h1>
 
 		<section class="seating-main">
@@ -61,27 +61,46 @@
 		<div class="seating">
 				<div>
 					<section id="room" class="clearfix">
-						{% for student in students %}
-							<div class="student" id="{{ student.key.urlsafe() }}">
-								{{ student.name }}
+						{% for table in students_by_table %}
+							<div class="table">
+								{% for student in table %}
+									{% if student %}
+										<div class="student" id="{{ student.key.urlsafe() }}">
+											{{ student.name }}
+										</div>
+									{% else %}
+										<div class="student empty"></div>
+									{% endif %}
+								{% endfor %}
 							</div>
 						{% endfor %}
 					</section>
 				</div>
 
 				<div class="seating-options">
-					<form class="seating-layout">
-						<label>Table Size:
-							<select class="seating-layout-select">
-								{% for i in range(2, students|length + 1, 2) %}
-									<option value="{{i}}" selected="{{ i == 6 }}">{{i}}</option>
-								{% endfor %}
-							</select>
-						</label>
-					</form>
+					{% if not is_saved %}
+						<form class="seating-layout">
+							<label>Table Size:
+								<select class="table-size-select">
+									{% set max_size = ([7, (num_students / 2)|int + 1]|sort)[-1] %}
+									{% for i in range(2, max_size, 2) %}
+										{% if i == default_table_size %}
+											<option value="{{i}}" selected>{{i}}</option>
+										{% else %}
+											<option value="{{i}}">{{i}}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</label>
+						</form>
+					{% endif %}
 
 					<form method="get" action="/seating">
-						<input type="hidden" name="classroom" value="{{classroom.key.urlsafe()}}">
+						<input type="hidden" name="classroom"
+									 value="{{classroom.key.urlsafe()}}">
+						<!-- table_size value gets reset on table-size-select change -->
+						<input type="hidden" name="table_size"
+									 value="{{default_table_size}}">
 						<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
 							Regenerate Seating
 						</button>
@@ -93,6 +112,9 @@
 										 value="{{ classroom.key.urlsafe() }}">
 							<input type="hidden" name="keystring">
 							<input type="hidden" name="day" value="{{ day }}">
+							<!-- table_size value gets reset on table-size-select change -->
+							<input type="hidden" name="table_size"
+										 value="{{default_table_size}}">
 							<button id="save"
 										  class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
 									Save this Arrangement: Day {{ day }}
