@@ -7,6 +7,7 @@ const main = () => {
 	seatStudentsInitial();
 
 	const layoutDropdown = document.querySelector(".table-size-select");
+	console.log(layoutDropdown);
 	layoutDropdown.addEventListener("change", rearrangeTables);
 
 	const saveButton = document.getElementById("save");
@@ -127,6 +128,7 @@ const createEmptyStudentElement = () => {
 }
 
 const rearrangeTables = (e) => {
+	console.log('here');
 	const tableSize = +e.target.value;
 	if (tableSize === 0 || isNaN(tableSize)) {
 		return;
