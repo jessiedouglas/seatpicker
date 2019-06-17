@@ -145,14 +145,10 @@ class SeatingGenerator(object):
         # where N is the total number of vertices.
         c = None
         d = None
-        logging.info("ids_to_vertices: %s", self.ids_to_vertices)
         for p_id in a.possible_pairs:
             c = self.ids_to_vertices[p_id]
-            logging.info("c: %s", c.student.name)
-            logging.info("c's pair: %s", c.pair.id)
             if c.pair.id in b.possible_pairs:
                 d = self.ids_to_vertices[c.pair.id]
-                logging.info("d: %s", d.student.name if d else None)
                 break
 
         if c and d:
@@ -193,7 +189,7 @@ class SeatingGenerator(object):
         possible_pair_set = set(singleton.possible_pairs)
 
         for other in other_students:
-            if other.pair.id in possible_pair_set:
+            if other.pair and other.pair.id in possible_pair_set:
                 self._pair_students(singleton, other.pair)
                 self._unpair_student(other)
                 return
