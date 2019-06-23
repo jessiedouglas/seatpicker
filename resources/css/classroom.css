@@ -15,14 +15,24 @@
 	margin-bottom: 0;
 }
 
+#students {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .student {
 	width: 25%;
 	padding-left: 50px;
 	border: 1px solid #ccc;
+  display: flex;
 }
 
 .student-name {
 	margin: 8px 0;
+}
+
+.expander {
+  flex-grow: 1;
 }
 
 .delete-button {

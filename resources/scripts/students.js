@@ -18,7 +18,6 @@ Student.main = function() {
   const students = document.querySelector('#students');
   if (students) {
     students.addEventListener('click', (event) => {
-      debugger;
       if (event.target.parentElement.classList.contains('delete-button')) {
         event.preventDefault();
         const parent = event.target.parentElement.parentElement;
@@ -46,6 +45,7 @@ Student.saveStudent_ = function(name, classroom_id) {
 Student.appendStudent_ = function(student) {
   const studentContent = '<p class="student-name">' + student.name + '</p>' +
     '<p class="student-id" hidden>' + student.id + '</p>' +
+    '<p class="expander"></p>' +
     '<button ' +
         'class="delete-button mdl-button mdl-js-button mdl-js-ripple-effect">' +
         '<i class="material-icons">delete</i>' +
@@ -57,7 +57,6 @@ Student.appendStudent_ = function(student) {
     students.innerText = '';
   }
   studentEl.classList.add('student');
-  studentEl.classList.add('clearfix');
   students.insertAdjacentElement('beforeend', studentEl);
   const nameInput = document.querySelector('#studentName');
   nameInput.value = "";
