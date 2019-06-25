@@ -58,20 +58,9 @@ class AllSeatingHandler(webapp2.RequestHandler):
     def _get_tables_and_students(self, arrangement):
         '''Retrieves all tables and students for a given arrangement.'''
         if arrangement.tables:
-            return self._seat_students(arrangement)
+            return seating_util.seat_students(arrangement)
         else:
             return self._seat_students_deprecated(arrangement)
-
-    def _seat_students(self, arrangement):
-        '''Retrieves students and tables and returns a list of students by
-        table.'''
-        tables = ndb.get_multi(arrangement.tables)
-        all_students = ndb.get_multi([s for t in tables for s in t.students])
-        keys_to_students = {s.key:s for s in all_students}
-        return [[
-                keys_to_students.get(key) for key in t.students
-            ] for t in tables
-        ]
 
     def _seat_students_deprecated(self, arrangement):
         '''Retrieves all students and returns a list of lists of students, each

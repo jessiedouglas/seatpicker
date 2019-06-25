@@ -3,6 +3,7 @@ import functools
 import jinja2
 import logging
 import random
+import urllib
 
 from google.appengine.ext import ndb
 from google.appengine.api import users
@@ -53,10 +54,13 @@ class SeatingHandler(webapp2.RequestHandler):
             self.redirect('/')
             return
 
-        urlsafe = self.request.get("classroom")
+        encoded_msg = self.request.get('msg')
+        msg = urllib.unquote_plus(encoded_msg) if encoded_msg else None
+
+        classroom_key = self.request.get('classroom')
         c = None
-        if urlsafe:
-            key = ndb.Key(urlsafe=urlsafe)
+        if classroom_key:
+            key = ndb.Key(urlsafe=classroom_key)
             c = key.get()
 
         if c and c.user_id != current_user.user_id():
@@ -64,6 +68,16 @@ class SeatingHandler(webapp2.RequestHandler):
 
         table_size = int(self.request.get(
             'table_size', default_value=DEFAULT_TABLE_SIZE))
+
+        # If an arrangement is passed in, we want a view-only version.
+        arrangement_key = self.request.get('arrangement')
+        if arrangement_key:
+            arrangement = ndb.Key(urlsafe=arrangement_key).get()
+            students_by_table = seating_util.seat_students(arrangement)
+            self._render(is_saved=True, c=c,
+                             students_by_table=students_by_table, msg=msg,
+                             day=arrangement.day, default_table_size=table_size)
+            return
 
         students = []
         if c:
@@ -77,8 +91,8 @@ class SeatingHandler(webapp2.RequestHandler):
                        "expected students, found none")
                 logging.info(msg)
 
-        self._render(c=c, default_table_size=table_size,
-                students_by_table=self._seat_students(students, table_size))
+        self._render(c=c, default_table_size=table_size, msg=msg,
+            students_by_table=self._seat_students(students, table_size))
 
     def post(self):
         if not users.get_current_user():
@@ -88,7 +102,8 @@ class SeatingHandler(webapp2.RequestHandler):
         student_str = self.request.get("keystring")
         students_by_table = self._get_students_by_table(student_str)
         classroom_key = ndb.Key(urlsafe=self.request.get("classroom_id"))
-        table_size = self.request.get("table_size", default_value=DEFAULT_TABLE_SIZE)
+        table_size = self.request.get(
+            "table_size", default_value=DEFAULT_TABLE_SIZE)
         c = None
         if classroom_key:
             c = classroom_key.get()
@@ -99,16 +114,29 @@ class SeatingHandler(webapp2.RequestHandler):
         except Exception as e:
             msg = "Error... %s" % e
             logging.info(msg)
-            self._render(c=c, students_by_table=students_by_table, msg=msg,
-                             default_table_size=table_size)
-            return
+            params = {
+                'classroom': classroom_key.urlsafe(),
+                'table_size': table_size,
+                'msg': msg
+            }
+            self.redirect('/seating?%s' % urllib.urlencode(params))
+            # self._render(c=c, students_by_table=students_by_table, msg=msg,
+            #                  default_table_size=table_size)
 
         msg = "Seating arrangement saved!"
         logging.info(msg)
 
-        self._render(is_saved=True, c=c,
-                         students_by_table=students_by_table, msg=msg,
-                         day=arrangement.day, default_table_size=table_size)
+        params = {
+            'classroom': classroom_key.urlsafe(),
+            'table_size': table_size,
+            'msg': msg,
+            'arrangement': arrangement.key.urlsafe()
+        }
+        self.redirect('/seating?%s' % urllib.urlencode(params))
+
+        # self._render(is_saved=True, c=c,
+        #                  students_by_table=students_by_table, msg=msg,
+        #                  day=arrangement.day, default_table_size=table_size)
 
     def _get_next_day(self, c):
         if not c:
