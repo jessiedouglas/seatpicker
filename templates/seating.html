@@ -102,6 +102,17 @@
 								{% endfor %}
 							</ul>
 						</form>
+					{% else %}
+						<form action="/deleteseating" method="post">
+							<input type="hidden" name="arrangement"
+										 value="{{arrangement_key}}">
+						  <input type="hidden" name="redirect_to" value="seating">
+							<input type="hidden" name="table_size"
+							       value="{{default_table_size}}">
+							<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+								 Delete This Arrangement
+							</button>
+						</form>
 					{% endif %}
 
 					<form method="get" action="/seating">

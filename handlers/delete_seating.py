@@ -1,6 +1,7 @@
 import webapp2
 import jinja2
 import logging
+import urllib
 
 from google.appengine.ext import ndb
 from google.appengine.api import users
@@ -22,7 +23,17 @@ class DeleteSeatingHandler(webapp2.RequestHandler):
 
         arrangement = seating_key.get()
         classroom = arrangement.classroom.get()
-        logging.info('Deleting Day %s seating arrangement for class %s',
-                     arrangement.day, classroom.name)
         seating_key.delete()
-        self.redirect('/allseating?classroom=%s' % classroom.key.urlsafe())
+
+        msg = 'Day %s seating arrangement deleted' % arrangement.day
+        logging.info(msg)
+
+        params = {
+            'msg': msg,
+            'classroom': classroom.key.urlsafe(),
+        }
+        if self.request.get('redirect_to') == 'seating':
+            params['table_size'] = self.request.get('table_size')
+            self.redirect('/seating?%s' % urllib.urlencode(params))
+        else:
+            self.redirect('/allseating?%s' % urllib.urlencode(params))

@@ -24,7 +24,7 @@ class SeatingHandler(webapp2.RequestHandler):
     UNOWNED_RESOURCE_ERROR = 'Sorry, the requested classroom does not belong to you.'
 
     def _render(self, is_saved=False, c=None, students_by_table=[],
-            msg=None, day=None, default_table_size=DEFAULT_TABLE_SIZE):
+            msg=None, default_table_size=DEFAULT_TABLE_SIZE, arrangement=None):
         template = env.get_template('seating.html')
 
         classrooms = seating_util.get_classrooms()
@@ -34,7 +34,7 @@ class SeatingHandler(webapp2.RequestHandler):
             "msg": msg,
             "classroom": c,
             "classrooms": classrooms,
-            "day": day if day else self._get_next_day(c),
+            "day": arrangement.day if arrangement else self._get_next_day(c),
             "students_by_table": students_by_table,
             "num_students": self._get_num_students(students_by_table),
             "is_saved": is_saved,
@@ -45,6 +45,9 @@ class SeatingHandler(webapp2.RequestHandler):
             ]),
             "default_table_size": default_table_size,
         }
+        if arrangement:
+            vars_dict['arrangement_key'] = arrangement.key.urlsafe()
+
         main_content = template.render(vars_dict)
         self.response.out.write(rendering_util.render_page(main_content))
 
@@ -69,30 +72,11 @@ class SeatingHandler(webapp2.RequestHandler):
         table_size = int(self.request.get(
             'table_size', default_value=DEFAULT_TABLE_SIZE))
 
-        # If an arrangement is passed in, we want a view-only version.
         arrangement_key = self.request.get('arrangement')
         if arrangement_key:
-            arrangement = ndb.Key(urlsafe=arrangement_key).get()
-            students_by_table = seating_util.seat_students(arrangement)
-            self._render(is_saved=True, c=c,
-                             students_by_table=students_by_table, msg=msg,
-                             day=arrangement.day, default_table_size=table_size)
-            return
-
-        students = []
-        if c:
-            students = student.Student.query().filter(
-                student.Student.classroom==c.key).fetch()
-            if len(students) > 0:
-                students = seating_generator.SeatingGenerator(
-                    students).generate_seating()
-            else:
-                msg = ("Can't generate seating: "
-                       "expected students, found none")
-                logging.info(msg)
-
-        self._render(c=c, default_table_size=table_size, msg=msg,
-            students_by_table=self._seat_students(students, table_size))
+            self._render_view_only(c, arrangement_key, table_size, msg)
+        else:
+            self._render_new_generation(c, table_size, msg)
 
     def post(self):
         if not users.get_current_user():
@@ -120,8 +104,6 @@ class SeatingHandler(webapp2.RequestHandler):
                 'msg': msg
             }
             self.redirect('/seating?%s' % urllib.urlencode(params))
-            # self._render(c=c, students_by_table=students_by_table, msg=msg,
-            #                  default_table_size=table_size)
 
         msg = "Seating arrangement saved!"
         logging.info(msg)
@@ -133,10 +115,6 @@ class SeatingHandler(webapp2.RequestHandler):
             'arrangement': arrangement.key.urlsafe()
         }
         self.redirect('/seating?%s' % urllib.urlencode(params))
-
-        # self._render(is_saved=True, c=c,
-        #                  students_by_table=students_by_table, msg=msg,
-        #                  day=arrangement.day, default_table_size=table_size)
 
     def _get_next_day(self, c):
         if not c:
@@ -167,6 +145,32 @@ class SeatingHandler(webapp2.RequestHandler):
                 tables.append(current_table)
                 current_table = []
         return tables
+
+    def _render_view_only(self, c, arrangement_key, table_size, msg):
+        arrangement = ndb.Key(urlsafe=arrangement_key).get()
+        if arrangement:
+            students_by_table = seating_util.seat_students(arrangement)
+            self._render(is_saved=True, c=c,
+                         students_by_table=students_by_table, msg=msg,
+                         default_table_size=table_size, arrangement=arrangement)
+        else:
+            msg = "Unable to find seating arrangement. Maybe it was deleted?"
+            self._render_new_generation(c, table_size, msg)
+
+    def _render_new_generation(self, c, table_size, msg):
+        students = []
+        if c:
+            students = student.Student.query().filter(
+                student.Student.classroom==c.key).fetch()
+            if len(students) > 0:
+                students = seating_generator.SeatingGenerator(
+                    students).generate_seating()
+            else:
+                msg = ("Can't generate seating: expected students, found none")
+                logging.info(msg)
+
+        self._render(c=c, default_table_size=table_size, msg=msg,
+            students_by_table=self._seat_students(students, table_size))
 
     def _get_students_by_table(self, all_key_str):
         '''Parses the expected key string and returns all students in a list
