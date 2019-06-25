@@ -16,3 +16,12 @@ h1 {
 	width: 40%;
 	margin-right: 50px;
 }
+
+.arrangement-metadata {
+	display: flex;
+	align-items: baseline;
+}
+
+.spacer {
+	flex-grow: 1;
+}
