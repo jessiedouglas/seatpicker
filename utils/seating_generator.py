@@ -3,33 +3,13 @@ import functools
 import random
 import sys
 
-def get_possible_pairs_sort_function(a, ids_to_vertices):
-    def _sort(b):
-        b_vertex = ids_to_vertices[b]
-        return abs(a.score - b_vertex.score)
-
-    return _sort
-
 
 class Vertex(object):
     def __init__(self, student, possible_pairs):
         self.student = student
         self.id = student.key
-        self.score = self._get_score(student.columns)
         self.possible_pairs = possible_pairs
         self.pair = None
-
-    def _get_score(self, scores):
-        if len(scores) == 0:
-            return 0.0
-        return sum(scores) / len(scores)
-
-    def sort_pairs(self, ids_to_vertices):
-        # Sort possible pairs so that pairs with the smallest difference in score
-        # come first in the list.
-        random.shuffle(self.possible_pairs)
-        sort_function = get_possible_pairs_sort_function(self, ids_to_vertices)
-        self.possible_pairs.sort(key=sort_function)
 
 
 class SeatingGenerator(object):
@@ -41,9 +21,6 @@ class SeatingGenerator(object):
         self.ids_to_vertices = {}
         for v in self.vertices:
             self.ids_to_vertices[v.id] = v
-
-        for v in self.vertices:
-            v.sort_pairs(self.ids_to_vertices)
 
         self.average_num_pairs = self._calculate_average_num_pairs(students)
         self.min_num_pairs = self._calculate_min_num_pairs(students)

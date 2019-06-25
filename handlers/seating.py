@@ -187,28 +187,8 @@ class SeatingHandler(webapp2.RequestHandler):
                     student_a.already_paired.append(student_b.key)
                     student_b.already_paired.append(student_a.key)
                 if student_a:
-                    student_a.columns.append(self._get_column_score(i))
                     student_list.append(student_a)
                 if student_b:
-                    student_b.columns.append(self._get_column_score(i + 1))
                     student_list.append(student_b)
 
         return student_list
-
-    def _get_column_score(self, i):
-        if i in [0, 11, 12, 23]:
-            return 5.0
-
-        if i in [1, 10, 13, 22]:
-            return 4.0
-
-        if i in [2, 9, 14, 21, 24, 29]:
-            return 3.0
-
-        if i in [3, 8, 15, 20]:
-            return 2.0
-
-        if i in [4, 7, 16, 19, 25, 26, 27, 28]:
-            return 1.0
-
-        return 0.0
