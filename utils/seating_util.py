@@ -24,7 +24,7 @@ def seat_students(arrangement):
     table.'''
     tables = ndb.get_multi(arrangement.tables)
     all_students = ndb.get_multi([s for t in tables for s in t.students])
-    keys_to_students = {s.key:s for s in all_students}
+    keys_to_students = {s.key:s for s in all_students if s}
     return [[
             keys_to_students.get(key) for key in t.students
         ] for t in tables
